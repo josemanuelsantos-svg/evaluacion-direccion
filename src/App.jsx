@@ -425,7 +425,8 @@ export default function App() {
       scoreDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
       comments: [],
       highestSection: null,
-      lowestSection: null
+      lowestSection: null,
+      enps: { score: 0, promoters: 0, passives: 0, detractors: 0 } // NUEVA MÉTRICA RRHH
     };
 
     if (evals.length === 0) return stats;
@@ -433,6 +434,23 @@ export default function App() {
     let totalScoreSum = 0;
     let totalValidAnswers = 0;
     const roleData = surveyConfig[mainRoleKey];
+
+    // CÁLCULO DEL eNPS (Employee Net Promoter Score)
+    evals.forEach(e => {
+      let formSum = 0;
+      let formCount = 0;
+      Object.values(e.answers).forEach(val => {
+        if (val > 0) { formSum += val; formCount++; }
+      });
+      if (formCount > 0) {
+        const formAvg = formSum / formCount;
+        if (formAvg >= 4.5) stats.enps.promoters++;
+        else if (formAvg >= 3.5) stats.enps.passives++;
+        else stats.enps.detractors++;
+      }
+    });
+    
+    stats.enps.score = Math.round(((stats.enps.promoters - stats.enps.detractors) / evals.length) * 100);
 
     roleData.sections.forEach(section => {
       let sectionSum = 0;
@@ -1076,27 +1094,55 @@ export default function App() {
                       }
 
                       const totalVotes = Object.values(stats.scoreDistribution).reduce((a, b) => a + b, 0);
-                      let diagnostico = { texto: "N/A", color: "text-slate-500", bg: "bg-slate-100" };
-                      if (stats.globalAverage >= 4.2) diagnostico = { texto: "Excelencia / Liderazgo Sólido", color: "text-green-700", bg: "bg-green-100" };
-                      else if (stats.globalAverage >= 3.5) diagnostico = { texto: "Aceptable / Con margen de mejora", color: "text-yellow-700", bg: "bg-yellow-100" };
-                      else if (stats.globalAverage > 0) diagnostico = { texto: "Riesgo Institucional / Atención Urgente", color: "text-red-700", bg: "bg-red-100" };
+                      
+                      // Lógica visual del eNPS
+                      let enpsColor = "text-slate-500";
+                      let enpsBg = "bg-slate-100";
+                      let enpsLabel = "Crítico";
+                      if (stats.enps.score >= 30) { enpsColor = "text-emerald-700"; enpsBg = "bg-emerald-100"; enpsLabel = "Excelente"; }
+                      else if (stats.enps.score >= 0) { enpsColor = "text-amber-700"; enpsBg = "bg-amber-100"; enpsLabel = "Aceptable"; }
+                      else { enpsColor = "text-rose-700"; enpsBg = "bg-rose-100"; enpsLabel = "Riesgo"; }
 
                       return (
                         <div className="space-y-6">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
-                            <div className={`p-4 rounded-xl border ${diagnostico.bg} border-opacity-50 flex flex-col justify-center`}>
-                              <p className="text-sm font-bold uppercase tracking-wider mb-1 opacity-70">Diagnóstico Global</p>
-                              <p className={`text-lg font-bold ${diagnostico.color}`}>{diagnostico.texto}</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+                            {/* MÉTRICA 1: eNPS (WOW FACTOR) */}
+                            <div className={`p-5 rounded-xl border ${enpsBg} border-opacity-50 flex flex-col justify-center relative overflow-hidden`}>
+                              <div className="relative z-10">
+                                <p className="text-xs font-bold uppercase tracking-wider mb-1 opacity-70" title="Employee Net Promoter Score">Nivel de Lealtad (eNPS)</p>
+                                <div className="flex items-baseline gap-2">
+                                  <p className={`text-4xl font-extrabold ${enpsColor}`}>{stats.enps.score > 0 ? `+${stats.enps.score}` : stats.enps.score}</p>
+                                  <p className={`text-sm font-bold uppercase ${enpsColor} opacity-80`}>{enpsLabel}</p>
+                                </div>
+                                <div className="flex gap-2 mt-2 text-[10px] font-medium text-slate-600 opacity-80">
+                                  <span className="text-emerald-700">{Math.round((stats.enps.promoters/stats.totalEvaluations)*100)}% Promotores</span>
+                                  <span className="text-rose-700">{Math.round((stats.enps.detractors/stats.totalEvaluations)*100)}% Detractores</span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="p-4 rounded-xl border bg-blue-50 border-blue-100 flex flex-col justify-center">
-                              <p className="text-sm font-bold text-blue-800 uppercase tracking-wider mb-1 opacity-70">Fortaleza Principal</p>
-                              <p className="text-md font-bold text-blue-900 leading-tight">{stats.highestSection?.name || '-'}</p>
-                              <p className="text-sm text-blue-700 mt-1 font-medium">Nota: {stats.highestSection?.average ? stats.highestSection.average.toFixed(2) : '-'} / 5</p>
+
+                            {/* MÉTRICA 2: NOTA MEDIA */}
+                            <div className="p-5 rounded-xl border bg-white border-slate-200 shadow-sm flex flex-col justify-center">
+                              <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nota Global</p>
+                              <div className="flex items-baseline gap-2">
+                                <p className="text-4xl font-extrabold text-blue-600">{stats.globalAverage.toFixed(2)}</p>
+                                <p className="text-xl text-slate-400 font-medium">/ 5</p>
+                              </div>
+                              <p className="text-xs font-medium text-slate-400 mt-2">Basado en {stats.totalEvaluations} respuestas</p>
                             </div>
-                            <div className="p-4 rounded-xl border bg-orange-50 border-orange-100 flex flex-col justify-center">
-                              <p className="text-sm font-bold text-orange-800 uppercase tracking-wider mb-1 opacity-70">Área de Mejora Prioritaria</p>
-                              <p className="text-md font-bold text-orange-900 leading-tight">{stats.lowestSection?.name || '-'}</p>
-                              <p className="text-sm text-orange-700 mt-1 font-medium">Nota: {stats.lowestSection?.average ? stats.lowestSection.average.toFixed(2) : '-'} / 5</p>
+
+                            {/* MÉTRICA 3: FORTALEZA */}
+                            <div className="p-5 rounded-xl border bg-blue-50 border-blue-100 flex flex-col justify-center">
+                              <p className="text-xs font-bold text-blue-800 uppercase tracking-wider mb-1 opacity-70">Fortaleza Principal</p>
+                              <p className="text-sm font-bold text-blue-900 leading-tight line-clamp-2">{stats.highestSection?.name || '-'}</p>
+                              <p className="text-xs text-blue-700 mt-2 font-medium">Competencia mejor valorada ({stats.highestSection?.average ? stats.highestSection.average.toFixed(2) : '-'})</p>
+                            </div>
+
+                            {/* MÉTRICA 4: DEBILIDAD */}
+                            <div className="p-5 rounded-xl border bg-orange-50 border-orange-100 flex flex-col justify-center">
+                              <p className="text-xs font-bold text-orange-800 uppercase tracking-wider mb-1 opacity-70">Área de Mejora</p>
+                              <p className="text-sm font-bold text-orange-900 leading-tight line-clamp-2">{stats.lowestSection?.name || '-'}</p>
+                              <p className="text-xs text-orange-700 mt-2 font-medium">Prioridad de intervención ({stats.lowestSection?.average ? stats.lowestSection.average.toFixed(2) : '-'})</p>
                             </div>
                           </div>
 
@@ -1298,6 +1344,17 @@ export default function App() {
         )}
 
       </main>
+
+      {/* FOOTER CON VERSIÓN Y CRÉDITOS */}
+      <footer className="max-w-6xl mx-auto py-6 px-4 border-t border-slate-200 mt-auto print:hidden">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-slate-400">
+          <p>© {new Date().getFullYear()} Colegio - Auditoría de Calidad Institucional.</p>
+          <div className="flex items-center gap-2">
+            <span className="bg-slate-200 text-slate-600 px-2 py-1 rounded text-[10px] tracking-wider uppercase">Pro Edition</span>
+            <span>v2.0.0</span>
+          </div>
+        </div>
+      </footer>
       
       {/* Estilos para animaciones y reglas críticas de impresión (PDF) */}
       <style dangerouslySetInnerHTML={{__html: `
