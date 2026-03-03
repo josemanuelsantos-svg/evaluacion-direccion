@@ -9,9 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview"
   },
-  "dependencies": {
+"dependencies": {
     "firebase": "^10.8.0",
-    "lucide-react": "^0.344.0",
+    "lucide-react": "^0.475.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
