@@ -241,6 +241,9 @@ export default function App() {
   const [exportStatus, setExportStatus] = useState(null);
   const [deleteModalId, setDeleteModalId] = useState(null); // ID del registro a borrar
   
+  // NUEVO ESTADO PARA EL LOGIN MODAL
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
   // Admin Tabs: 'resultados' | 'registros' | 'editar'
   const [adminTab, setAdminTab] = useState('resultados'); 
   const [localSurveyConfig, setLocalSurveyConfig] = useState(defaultSurveyData);
@@ -360,6 +363,7 @@ export default function App() {
     if (adminPassword === 'auditor360') {
       setAdminError(false);
       setAdminPassword("");
+      setShowLoginModal(false); // Cerramos el modal
       fetchAdminData();
       setCurrentView('admin_dashboard');
     } else {
@@ -512,6 +516,11 @@ export default function App() {
     setTimeout(() => setExportStatus(null), 4000);
   };
 
+  // Función para manejar la impresión de pantalla añadida
+  const handlePrint = () => {
+    window.print();
+  };
+
   // --- EDITOR ENCUESTAS ---
   const handleQuestionTextChange = (roleKey, sectionIndex, questionIndex, newText) => {
     setLocalSurveyConfig(prev => {
@@ -556,6 +565,48 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
+      
+      {/* Modal Acceso Admin */}
+      {showLoginModal && (
+        <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 animate-fade-in">
+          <div className="bg-white rounded-xl p-8 max-w-md w-full shadow-2xl relative">
+            <button 
+              onClick={() => { setShowLoginModal(false); setAdminError(false); setAdminPassword(""); }} 
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="flex justify-center mb-6">
+              <div className="p-4 bg-slate-100 rounded-full">
+                <Lock className="w-8 h-8 text-slate-600" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold text-center text-slate-800 mb-6">Acceso Auditor</h2>
+            <form onSubmit={handleAdminLogin} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Contraseña de acceso</label>
+                <input
+                  type="password"
+                  value={adminPassword}
+                  onChange={(e) => setAdminPassword(e.target.value)}
+                  className={`w-full p-3 bg-white text-slate-800 border rounded-lg outline-none focus:ring-2 ${adminError ? 'border-red-500 focus:ring-red-200' : 'border-slate-300 focus:ring-blue-500 focus:border-blue-500'}`}
+                  placeholder="Introduce la clave"
+                  autoFocus
+                />
+                {adminError && <p className="text-red-500 text-sm mt-1">Contraseña incorrecta. (Prueba con: auditor360)</p>}
+              </div>
+              <button
+                type="submit"
+                className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+              >
+                Entrar al Dashboard
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Modal Confirmación Borrado */}
       {deleteModalId && (
         <div className="fixed inset-0 bg-slate-900/60 z-[100] flex items-center justify-center p-4 animate-fade-in">
@@ -588,12 +639,18 @@ export default function App() {
               <p className="text-slate-400 text-sm hidden sm:block">Auditoría de Calidad Institucional</p>
             </div>
           </div>
-          {currentView !== 'admin_dashboard' && currentView !== 'admin_login' && (
-             <button onClick={() => setCurrentView('admin_login')} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors" title="Acceso Administrador">
+          
+          {/* Botón de Admin (Abre el Modal) */}
+          {currentView !== 'admin_dashboard' ? (
+             <button 
+                onClick={() => setShowLoginModal(true)} 
+                className="flex items-center gap-2 p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer" 
+                title="Acceso Administrador"
+             >
+               <span className="text-xs font-medium uppercase tracking-wider hidden sm:block">Admin</span>
                <Lock className="w-5 h-5" />
              </button>
-          )}
-          {currentView === 'admin_dashboard' && (
+          ) : (
             <button onClick={() => { setCurrentView('home'); setAdminTab('resultados'); }} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg transition-colors shadow-sm">
               <LogOut className="w-4 h-4" /> Cerrar Sesión
             </button>
