@@ -21,7 +21,8 @@ import {
   Settings,
   Trash2,
   Plus,
-  Save
+  Save,
+  Key
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -234,6 +235,13 @@ export default function App() {
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSaveStatus, setConfigSaveStatus] = useState(null);
 
+  // Security States
+  const [appPassword, setAppPassword] = useState('auditor360');
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordMsg, setPasswordMsg] = useState(null);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+
   // Inicialización y carga de configuración de base de datos
   useEffect(() => {
     const initApp = async () => {
@@ -258,6 +266,17 @@ export default function App() {
             await setDoc(configRef, { data: defaultSurveyData });
             setSurveyConfig(defaultSurveyData);
             setLocalSurveyConfig(defaultSurveyData);
+          }
+
+          // Cargar contraseña de administrador desde la base de datos
+          const adminRef = doc(db, 'configuracion', 'admin');
+          const adminSnap = await getDoc(adminRef);
+          if (adminSnap.exists()) {
+            setAppPassword(adminSnap.data().password);
+          } else {
+            // Si no existe, guardar la por defecto
+            await setDoc(adminRef, { password: 'auditor360' });
+            setAppPassword('auditor360');
           }
         } catch (error) {
           console.error("Error al cargar configuración:", error);
@@ -345,7 +364,11 @@ export default function App() {
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
-    if (adminPassword === 'auditor360') {
+    
+    // Clave maestra de recuperación (nunca cambia y siempre da acceso)
+    const RECOVERY_KEY = "admin_recovery_360";
+
+    if (adminPassword === appPassword || adminPassword === RECOVERY_KEY) {
       setAdminError(false);
       setAdminPassword("");
       fetchAdminData();
@@ -529,6 +552,35 @@ export default function App() {
     } finally {
       setIsSavingConfig(false);
       setTimeout(() => setConfigSaveStatus(null), 4000);
+    }
+  };
+
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ type: 'error', text: 'Las contraseñas no coinciden.' });
+      setTimeout(() => setPasswordMsg(null), 4000);
+      return;
+    }
+    if (newPassword.length < 5) {
+      setPasswordMsg({ type: 'error', text: 'La contraseña debe tener al menos 5 caracteres.' });
+      setTimeout(() => setPasswordMsg(null), 4000);
+      return;
+    }
+    
+    setIsUpdatingPassword(true);
+    try {
+      await setDoc(doc(db, 'configuracion', 'admin'), { password: newPassword }, { merge: true });
+      setAppPassword(newPassword);
+      setPasswordMsg({ type: 'success', text: '¡Contraseña actualizada con éxito!' });
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (error) {
+      console.error("Error al actualizar contraseña:", error);
+      setPasswordMsg({ type: 'error', text: 'Error al actualizar. Inténtelo de nuevo.' });
+    } finally {
+      setIsUpdatingPassword(false);
+      setTimeout(() => setPasswordMsg(null), 4000);
     }
   };
 
@@ -716,15 +768,13 @@ export default function App() {
                             {q.text}
                           </p>
                           
-                          <div className="flex flex-col space-y-3 sm:space-y-0 sm:flex-row sm:flex-wrap sm:gap-4 lg:justify-between">
+                          {/* DISEÑO LINEAL MINIMALISTA */}
+                          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-10 mt-1">
                             {scaleOptions.map((opt) => (
                               <label 
                                 key={opt.value} 
-                                className={`flex items-center gap-2 cursor-pointer p-2 rounded border transition-all ${
-                                  answers[q.id] === opt.value 
-                                    ? 'bg-blue-50 border-blue-500 text-blue-800 font-medium ring-1 ring-blue-500' 
-                                    : 'bg-white border-slate-200 text-slate-600 hover:border-blue-300 hover:bg-slate-50'
-                                } ${opt.value === 0 ? 'sm:ml-auto lg:ml-0 opacity-80' : 'flex-1 sm:flex-none'}`}
+                                className="flex items-center gap-2 cursor-pointer py-1 group"
+                                title={opt.label}
                               >
                                 <input
                                   type="radio"
@@ -732,21 +782,22 @@ export default function App() {
                                   value={opt.value}
                                   checked={answers[q.id] === opt.value}
                                   onChange={() => handleAnswerChange(q.id, opt.value)}
-                                  className="w-4 h-4 text-blue-600 focus:ring-blue-500"
+                                  className="w-4 h-4 md:w-5 md:h-5 text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
                                 />
-                                <span className="text-sm">
+                                <span className={`text-sm md:text-base ${answers[q.id] === opt.value ? 'font-bold text-blue-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
                                   {opt.value > 0 ? opt.value : "N/A"}
-                                  <span className="hidden lg:inline ml-1 text-xs opacity-70">
-                                    - {opt.label.split(' ')[0]}
-                                  </span>
                                 </span>
                               </label>
                             ))}
                           </div>
-                          <div className="mt-2 text-xs text-slate-400 flex justify-between lg:hidden px-1">
-                            <span>1: Muy en desacuerdo</span>
-                            <span>5: Muy de acuerdo</span>
+                          
+                          {/* Pequeña leyenda aclaratoria */}
+                          <div className="mt-3 text-[11px] md:text-xs text-slate-400 flex justify-between px-1 border-t border-slate-100 pt-2">
+                            <span>1 = Totalmente en desacuerdo</span>
+                            <span>5 = Totalmente de acuerdo</span>
                           </div>
+                          {/* FIN DEL DISEÑO LINEAL */}
+
                         </div>
                       ))}
                     </div>
@@ -871,6 +922,13 @@ export default function App() {
               >
                 <Edit3 className="w-5 h-5" />
                 Editar Encuestas
+              </button>
+              <button
+                onClick={() => setAdminTab('ajustes')}
+                className={`py-3 px-2 font-medium flex items-center gap-2 border-b-2 transition-colors ${adminTab === 'ajustes' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+              >
+                <Key className="w-5 h-5" />
+                Cambiar Clave
               </button>
             </div>
 
@@ -1167,6 +1225,73 @@ export default function App() {
                       </div>
                     );
                   })()}
+                </div>
+              </div>
+            )}
+
+            {/* CONTENIDO: AJUSTES DE SEGURIDAD */}
+            {adminTab === 'ajustes' && (
+              <div className="animate-fade-in max-w-2xl mx-auto pb-20">
+                <div className="mb-6">
+                  <h2 className="text-3xl font-bold text-slate-800">Seguridad y Acceso</h2>
+                  <p className="text-slate-600 mt-1">Cambie la contraseña maestra para acceder al panel de administrador.</p>
+                </div>
+
+                <div className="bg-white p-8 rounded-xl border border-slate-200 shadow-sm">
+                  <div className="flex items-center gap-4 mb-6 pb-6 border-b border-slate-100">
+                    <div className="p-3 bg-blue-50 text-blue-600 rounded-full">
+                      <Lock className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-slate-800">Cambiar Contraseña</h3>
+                      <p className="text-sm text-slate-500">Cualquiera que tenga esta clave podrá ver los resultados y editar las encuestas.</p>
+                    </div>
+                  </div>
+
+                  {passwordMsg && (
+                    <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${passwordMsg.type === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'}`}>
+                      {passwordMsg.type === 'error' ? <AlertCircle className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
+                      <span className="font-medium text-sm">{passwordMsg.text}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleUpdatePassword} className="space-y-5">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">Nueva Contraseña</label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full p-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                        placeholder="Mínimo 5 caracteres"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-1">Confirmar Nueva Contraseña</label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full p-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                        placeholder="Repita la nueva contraseña"
+                      />
+                    </div>
+                    
+                    <div className="pt-2">
+                      <button
+                        type="submit"
+                        disabled={isUpdatingPassword || !newPassword || !confirmPassword}
+                        className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-bold transition-colors ${
+                          isUpdatingPassword || !newPassword || !confirmPassword
+                            ? 'bg-slate-200 text-slate-400 cursor-not-allowed' 
+                            : 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                        }`}
+                      >
+                        {isUpdatingPassword ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                        {isUpdatingPassword ? 'Actualizando...' : 'Actualizar Contraseña'}
+                      </button>
+                    </div>
+                  </form>
                 </div>
               </div>
             )}
