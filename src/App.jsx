@@ -250,7 +250,7 @@ export default function App() {
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSaveStatus, setConfigSaveStatus] = useState(null);
 
-  // Inicializar Firebase Auth y Título
+  // Inicializar Firebase Auth y Título con tolerancia a fallos (Timeout)
   useEffect(() => {
     document.title = "Portal de Evaluación";
     let link = document.querySelector("link[rel~='icon']");
@@ -261,9 +261,26 @@ export default function App() {
     }
     link.href = "https://i.ibb.co/YvMv3Qx/Logo-sin-fondo.png";
 
+    // Red de seguridad: si pasados 5 segundos no ha cargado, forzamos la carga
+    const loadingTimeout = setTimeout(() => {
+      if (isLoadingConfig) {
+        console.warn("Tiempo de espera agotado. Forzando carga con datos locales.");
+        setSurveyConfig(defaultSurveyData);
+        setLocalSurveyConfig(defaultSurveyData);
+        setIsLoadingConfig(false);
+      }
+    }, 5000);
+
     const initApp = async () => {
-      try { await signInAnonymously(auth); } 
-      catch (error) { console.error("Error Auth:", error); }
+      try { 
+        await signInAnonymously(auth); 
+      } catch (error) { 
+        console.error("Error Auth:", error);
+        // Si falla la autenticación, también forzamos la carga
+        setSurveyConfig(defaultSurveyData);
+        setLocalSurveyConfig(defaultSurveyData);
+        setIsLoadingConfig(false);
+      }
     };
     initApp();
 
@@ -282,14 +299,20 @@ export default function App() {
             setLocalSurveyConfig(defaultSurveyData);
           }
         } catch (error) {
+          console.error("Error al cargar configuración:", error);
           setSurveyConfig(defaultSurveyData);
           setLocalSurveyConfig(defaultSurveyData);
         } finally {
+          clearTimeout(loadingTimeout); // Cancelamos el timeout si cargó bien
           setIsLoadingConfig(false);
         }
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribe();
+      clearTimeout(loadingTimeout);
+    };
   }, []);
 
   const handleStartSurvey = (roleKey) => {
