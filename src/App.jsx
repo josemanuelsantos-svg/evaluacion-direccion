@@ -24,10 +24,10 @@ import {
   Save
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 
-// Configuración de Firebase (Tu proyecto real para StackBlitz)
+// Configuración de Firebase (Tu proyecto real para StackBlitz / Vercel)
 const firebaseConfig = {
   apiKey: "AIzaSyDpRCVDgKY69zsx5dR2CJXr6nKmmGZbQao",
   authDomain: "evaluacion-direccion.firebaseapp.com",
@@ -229,25 +229,12 @@ export default function App() {
   const [exportStatus, setExportStatus] = useState(null);
   
   // Admin Edit Survey States
-  const [adminTab, setAdminTab] = useState('resultados'); // 'resultados' | 'editar'
+  const [adminTab, setAdminTab] = useState('resultados'); 
   const [localSurveyConfig, setLocalSurveyConfig] = useState(defaultSurveyData);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSaveStatus, setConfigSaveStatus] = useState(null);
 
-  // Cambiar título de la pestaña y favicon dinámicamente
-  useEffect(() => {
-    document.title = "Portal de Evaluación";
-    
-    let link = document.querySelector("link[rel~='icon']");
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'icon';
-      document.head.appendChild(link);
-    }
-    link.href = "https://i.ibb.co/YvMv3Qx/Logo-sin-fondo.png";
-  }, []);
-
-  // Inicialización y carga de configuración
+  // Inicialización y carga de configuración de base de datos
   useEffect(() => {
     const initApp = async () => {
       try {
@@ -261,7 +248,6 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Cargar estructura de la encuesta desde Firebase
         try {
           const configRef = doc(db, 'configuracion', 'encuestas');
           const docSnap = await getDoc(configRef);
@@ -269,14 +255,12 @@ export default function App() {
             setSurveyConfig(docSnap.data().data);
             setLocalSurveyConfig(docSnap.data().data);
           } else {
-            // Si no existe, guardar la estructura por defecto
             await setDoc(configRef, { data: defaultSurveyData });
             setSurveyConfig(defaultSurveyData);
             setLocalSurveyConfig(defaultSurveyData);
           }
         } catch (error) {
           console.error("Error al cargar configuración:", error);
-          // Fallback a los datos por defecto si hay error
           setSurveyConfig(defaultSurveyData);
           setLocalSurveyConfig(defaultSurveyData);
         } finally {
@@ -359,7 +343,6 @@ export default function App() {
     }
   };
 
-  // --- ADMIN FUNCTIONS ---
   const handleAdminLogin = (e) => {
     e.preventDefault();
     if (adminPassword === 'auditor360') {
@@ -499,7 +482,6 @@ export default function App() {
     setTimeout(() => setExportStatus(null), 4000);
   };
 
-  // --- EDITOR DE ENCUESTAS LOGIC ---
   const handleQuestionTextChange = (roleKey, sectionIndex, questionIndex, newText) => {
     setLocalSurveyConfig(prev => {
       const next = { ...prev };
