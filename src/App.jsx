@@ -824,35 +824,6 @@ export default function App() {
           </div>
         )}
 
-        {currentView === 'subrole_selection' && selectedRole && surveyConfig[selectedRole].requiresSubRole && (
-          <div className="animate-fade-in max-w-5xl mx-auto">
-            <button 
-              onClick={() => setCurrentView('home')}
-              className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-6 font-medium transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" /> Volver al inicio
-            </button>
-            <div className="mb-8 text-center md:text-left">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Seleccione la Etapa Educativa</h2>
-              <p className="text-slate-600 max-w-3xl">
-                Para la figura de {surveyConfig[selectedRole].title}, por favor indique con qué etapa interactúa en su día a día.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto md:mx-0">
-              {surveyConfig[selectedRole].subRoles.map((subRole) => (
-                <button
-                  key={subRole.id}
-                  onClick={() => handleSelectSubRole(subRole.id)}
-                  className="flex flex-col items-center justify-center text-center bg-white p-8 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-500 hover:bg-blue-50 transition-all duration-200 group"
-                >
-                  <GraduationCap className="w-10 h-10 text-blue-400 mb-4 group-hover:text-blue-600 transition-colors" />
-                  <h3 className="text-xl font-bold text-slate-800">{subRole.title}</h3>
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {currentView === 'survey' && selectedRole && (
           <div className="animate-fade-in max-w-5xl mx-auto">
             <button 
