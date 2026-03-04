@@ -206,6 +206,78 @@ const scaleOptions = [
   { value: 0, label: "N/A (No aplica / Sin experiencia directa)" }
 ];
 
+// --- COMPONENTE GRÁFICO DE RADAR (ARAÑA) ---
+const RadarChart = ({ data }) => {
+  if (!data || data.length < 3) return (
+    <div className="flex items-center justify-center h-full text-slate-400 text-sm italic">
+      Gráfico no disponible (se requieren al menos 3 dimensiones)
+    </div>
+  );
+
+  const size = 320;
+  const center = size / 2;
+  const radius = (size / 2) - 45; // Margen para las etiquetas
+
+  const getCoordinatesForValue = (value, index) => {
+    const angle = (Math.PI / 2) - (2 * Math.PI * index / data.length);
+    const r = (value / 5) * radius;
+    return {
+      x: center + r * Math.cos(angle),
+      y: center - r * Math.sin(angle)
+    };
+  };
+
+  const polygonPoints = data.map((d, i) => {
+    const pos = getCoordinatesForValue(d.average, i);
+    return `${pos.x},${pos.y}`;
+  }).join(' ');
+
+  return (
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-auto max-w-[320px] overflow-visible">
+      {/* Telaraña de fondo */}
+      {[1, 2, 3, 4, 5].map(level => {
+        const levelPoints = data.map((_, i) => {
+          const pos = getCoordinatesForValue(level, i);
+          return `${pos.x},${pos.y}`;
+        }).join(' ');
+        return (
+          <polygon key={level} points={levelPoints} fill="none" stroke={level === 5 ? "#cbd5e1" : "#f1f5f9"} strokeWidth="1" />
+        );
+      })}
+
+      {/* Ejes y Etiquetas */}
+      {data.map((d, i) => {
+        const pos = getCoordinatesForValue(5, i);
+        const labelPos = getCoordinatesForValue(5.9, i); 
+        // Partir el texto largo en 2 líneas
+        const words = d.name.split(' ');
+        const half = Math.ceil(words.length / 2);
+        const label1 = words.slice(0, half).join(' ');
+        const label2 = words.slice(half).join(' ');
+        
+        return (
+          <g key={i}>
+            <line x1={center} y1={center} x2={pos.x} y2={pos.y} stroke="#e2e8f0" strokeWidth="1" />
+            <text x={labelPos.x} y={labelPos.y - 6} textAnchor="middle" dominantBaseline="middle" className="text-[10px] font-medium fill-slate-500">
+              {label1}
+            </text>
+            <text x={labelPos.x} y={labelPos.y + 6} textAnchor="middle" dominantBaseline="middle" className="text-[10px] font-medium fill-slate-500">
+              {label2}
+            </text>
+          </g>
+        );
+      })}
+
+      {/* Polígono de Datos */}
+      <polygon points={polygonPoints} fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2" />
+      {data.map((d, i) => {
+        const pos = getCoordinatesForValue(d.average, i);
+        return <circle key={`c-${i}`} cx={pos.x} cy={pos.y} r="4" fill="#2563eb" />;
+      })}
+    </svg>
+  );
+};
+
 export default function App() {
   const [currentView, setCurrentView] = useState('home'); 
   const [selectedRole, setSelectedRole] = useState(null);
@@ -242,8 +314,17 @@ export default function App() {
   const [passwordMsg, setPasswordMsg] = useState(null);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
+  // --- ESTADO PARA PREVENIR DUPLICADOS (LocalStorage) ---
+  const [completedSurveys, setCompletedSurveys] = useState([]);
+
   // Inicialización y carga de configuración de base de datos
   useEffect(() => {
+    // Cargar historial de encuestas ya completadas en este navegador
+    const stored = localStorage.getItem('auditoria360_completed');
+    if (stored) {
+      setCompletedSurveys(JSON.parse(stored));
+    }
+
     const initApp = async () => {
       try {
         await signInAnonymously(auth);
@@ -352,6 +433,12 @@ export default function App() {
           comments: comments,
           timestamp: serverTimestamp(),
         });
+
+        // Registrar en el navegador que ya ha completado esta encuesta
+        const surveyKey = selectedSubRole ? `${selectedRole}_${selectedSubRole}` : selectedRole;
+        const updatedCompleted = [...completedSurveys, surveyKey];
+        setCompletedSurveys(updatedCompleted);
+        localStorage.setItem('auditoria360_completed', JSON.stringify(updatedCompleted));
       }
       setCurrentView('success');
     } catch (error) {
@@ -662,22 +749,74 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.entries(surveyConfig).map(([key, data]) => {
                 const Icon = iconMap[data.iconName] || ClipboardList;
+                
+                // Comprobar si ya hizo esta encuesta para bloquearla
+                const isFullyCompleted = data.requiresSubRole
+                  ? data.subRoles.every(sr => completedSurveys.includes(`${key}_${sr.id}`))
+                  : completedSurveys.includes(key);
+
                 return (
                   <button
                     key={key}
-                    onClick={() => handleStartSurvey(key)}
-                    className="flex flex-col text-left bg-white p-6 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-300 hover:bg-blue-50/50 transition-all duration-200 group"
+                    onClick={() => !isFullyCompleted && handleStartSurvey(key)}
+                    className={`flex flex-col text-left p-6 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 group ${
+                      isFullyCompleted ? 'opacity-70 cursor-not-allowed bg-slate-50' : 'bg-white hover:shadow-md hover:border-blue-300 hover:bg-blue-50/50'
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <div className="p-3 bg-blue-100 text-blue-700 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                        <Icon className="w-6 h-6" />
+                      <div className={`p-3 rounded-lg transition-colors ${
+                        isFullyCompleted ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white'
+                      }`}>
+                        {isFullyCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
                       </div>
-                      <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />
+                      {!isFullyCompleted && <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />}
                     </div>
-                    <h3 className="text-xl font-bold mb-2">{data.title}</h3>
+                    <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
+                      {data.title}
+                      {isFullyCompleted && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded uppercase tracking-wider">Completado</span>}
+                    </h3>
                     <p className="text-slate-500 text-sm leading-relaxed">
-                      {data.description}
+                      {isFullyCompleted ? "Evaluación completada y registrada de forma segura. ¡Gracias por su participación!" : data.description}
                     </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {currentView === 'subrole_selection' && selectedRole && surveyConfig[selectedRole].requiresSubRole && (
+          <div className="animate-fade-in max-w-5xl mx-auto">
+            <button 
+              onClick={() => setCurrentView('home')}
+              className="flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-6 font-medium transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Volver al inicio
+            </button>
+            <div className="mb-8 text-center md:text-left">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Seleccione la Etapa Educativa</h2>
+              <p className="text-slate-600 max-w-3xl">
+                Para la figura de {surveyConfig[selectedRole].title}, por favor indique con qué etapa interactúa en su día a día.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto md:mx-0">
+              {surveyConfig[selectedRole].subRoles.map((subRole) => {
+                const isCompleted = completedSurveys.includes(`${selectedRole}_${subRole.id}`);
+                return (
+                  <button
+                    key={subRole.id}
+                    onClick={() => !isCompleted && handleSelectSubRole(subRole.id)}
+                    className={`flex flex-col items-center justify-center text-center p-8 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 group ${
+                      isCompleted ? 'opacity-70 cursor-not-allowed bg-slate-50' : 'bg-white hover:shadow-md hover:border-blue-500 hover:bg-blue-50'
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-10 h-10 text-green-500 mb-4" />
+                    ) : (
+                      <GraduationCap className="w-10 h-10 text-blue-400 mb-4 group-hover:text-blue-600 transition-colors" />
+                    )}
+                    <h3 className="text-xl font-bold text-slate-800 mb-2">{subRole.title}</h3>
+                    {isCompleted && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded uppercase tracking-wider">Completado</span>}
                   </button>
                 );
               })}
@@ -1084,21 +1223,29 @@ export default function App() {
                             <div className="lg:col-span-2 space-y-6">
                               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                 <h3 className="text-md font-bold text-slate-800 mb-6 border-b pb-2">Análisis Dimensional</h3>
-                                <div className="space-y-6">
-                                  {stats.sectionAverages.map((section, i) => (
-                                    <div key={i}>
-                                      <div className="flex justify-between text-sm mb-1">
-                                        <span className="font-medium text-slate-700">{section.name}</span>
-                                        <span className="font-bold text-blue-600">{section.average.toFixed(2)}</span>
+                                
+                                {/* AQUI ESTÁ EL NUEVO GRÁFICO DE RADAR INTEGRADO CON LAS BARRAS */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                                  <div className="w-full flex justify-center py-4">
+                                    <RadarChart data={stats.sectionAverages} />
+                                  </div>
+                                  
+                                  <div className="space-y-6">
+                                    {stats.sectionAverages.map((section, i) => (
+                                      <div key={i}>
+                                        <div className="flex justify-between text-sm mb-1">
+                                          <span className="font-medium text-slate-700">{section.name}</span>
+                                          <span className="font-bold text-blue-600">{section.average.toFixed(2)}</span>
+                                        </div>
+                                        <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden relative">
+                                          <div 
+                                            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
+                                            style={{ width: `${(section.average / 5) * 100}%` }}
+                                          ></div>
+                                        </div>
                                       </div>
-                                      <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden relative">
-                                        <div 
-                                          className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
-                                          style={{ width: `${(section.average / 5) * 100}%` }}
-                                        ></div>
-                                      </div>
-                                    </div>
-                                  ))}
+                                    ))}
+                                  </div>
                                 </div>
                               </div>
 
