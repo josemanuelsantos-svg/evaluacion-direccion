@@ -236,7 +236,7 @@ export default function App() {
   const [configSaveStatus, setConfigSaveStatus] = useState(null);
 
   // Security States
-  const [appPassword, setAppPassword] = useState('auditor360');
+  const [appPassword, setAppPassword] = useState('Itinerarium2026');
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMsg, setPasswordMsg] = useState(null);
@@ -275,8 +275,8 @@ export default function App() {
             setAppPassword(adminSnap.data().password);
           } else {
             // Si no existe, guardar la por defecto
-            await setDoc(adminRef, { password: 'auditor360' });
-            setAppPassword('auditor360');
+            await setDoc(adminRef, { password: 'Itinerarium2026' });
+            setAppPassword('Itinerarium2026');
           }
         } catch (error) {
           console.error("Error al cargar configuración:", error);
@@ -605,7 +605,10 @@ export default function App() {
               className="h-12 w-auto object-contain brightness-0 invert opacity-90" 
             />
             <div>
-              <h1 className="text-xl md:text-2xl font-bold">Portal de Evaluación 360º</h1>
+              <h1 className="text-xl md:text-2xl font-bold flex items-center gap-3">
+                Portal de Evaluación 360º
+                <span className="text-[10px] md:text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-medium border border-slate-700 tracking-wider">v1.2.0</span>
+              </h1>
               <p className="text-slate-400 text-sm hidden sm:block">Auditoría de Calidad Institucional</p>
             </div>
           </div>
@@ -814,7 +817,7 @@ export default function App() {
                   <textarea
                     value={comments}
                     onChange={(e) => setComments(e.target.value)}
-                    className="w-full min-h-[120px] p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y"
+                    className="w-full min-h-[120px] p-4 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y shadow-sm"
                     placeholder="Escriba sus comentarios cualitativos aquí de forma totalmente anónima..."
                   ></textarea>
                 </div>
@@ -1198,7 +1201,7 @@ export default function App() {
                                       <textarea
                                         value={q.text}
                                         onChange={(e) => handleQuestionTextChange(roleKey, sIndex, qIndex, e.target.value)}
-                                        className="w-full text-slate-700 bg-transparent outline-none resize-y min-h-[40px] border-b border-transparent focus:border-blue-300 transition-colors"
+                                        className="w-full p-2 bg-white text-slate-900 outline-none resize-y min-h-[40px] border border-slate-200 rounded focus:border-blue-400 focus:ring-1 focus:ring-blue-400 transition-all shadow-sm"
                                         placeholder="Escriba la pregunta aquí..."
                                       />
                                     </div>
