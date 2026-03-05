@@ -23,7 +23,8 @@ import {
   Plus,
   Save,
   Key,
-  List
+  List,
+  BookOpen
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
@@ -50,39 +51,144 @@ const iconMap = {
   Building: Building
 };
 
+// --- DICCIONARIO DE TEMAS DE COLOR (Colores vivos y diferenciados) ---
+const themeStyles = {
+  blue: {
+    headerBg: 'bg-blue-700',
+    iconBg: 'bg-blue-100 text-blue-700',
+    iconHover: 'group-hover:bg-blue-600 group-hover:text-white',
+    arrowHover: 'group-hover:text-blue-600',
+    borderHover: 'hover:border-blue-400',
+    bgLightHover: 'hover:bg-blue-50/80',
+    progress: 'bg-blue-600',
+    banner: 'bg-blue-600',
+    bannerText: 'text-blue-100',
+    bannerSubtext: 'text-blue-50',
+    radioFocus: 'focus:ring-blue-500',
+    radioCheckedText: 'text-blue-700',
+    radioInput: 'text-blue-600',
+    btnSubmit: 'bg-blue-600 hover:bg-blue-700',
+    btnSubmitLoading: 'bg-blue-400',
+    bigIcon: 'text-blue-500',
+    bigIconHover: 'group-hover:text-blue-700',
+    bigBorderHover: 'hover:border-blue-500',
+    bigBgHover: 'hover:bg-blue-50',
+    textareaFocus: 'focus:ring-blue-500 focus:border-blue-500',
+    hexFill: 'rgba(37, 99, 235, 0.2)',
+    hexStroke: '#2563eb',
+    hexDot: '#1d4ed8'
+  },
+  green: {
+    headerBg: 'bg-green-700',
+    iconBg: 'bg-green-100 text-green-700',
+    iconHover: 'group-hover:bg-green-600 group-hover:text-white',
+    arrowHover: 'group-hover:text-green-600',
+    borderHover: 'hover:border-green-400',
+    bgLightHover: 'hover:bg-green-50/80',
+    progress: 'bg-green-600',
+    banner: 'bg-green-600',
+    bannerText: 'text-green-100',
+    bannerSubtext: 'text-green-50',
+    radioFocus: 'focus:ring-green-500',
+    radioCheckedText: 'text-green-700',
+    radioInput: 'text-green-600',
+    btnSubmit: 'bg-green-600 hover:bg-green-700',
+    btnSubmitLoading: 'bg-green-400',
+    bigIcon: 'text-green-500',
+    bigIconHover: 'group-hover:text-green-700',
+    bigBorderHover: 'hover:border-green-500',
+    bigBgHover: 'hover:bg-green-50',
+    textareaFocus: 'focus:ring-green-500 focus:border-green-500',
+    hexFill: 'rgba(22, 163, 74, 0.2)',
+    hexStroke: '#16a34a',
+    hexDot: '#15803d'
+  },
+  red: {
+    headerBg: 'bg-red-700',
+    iconBg: 'bg-red-100 text-red-700',
+    iconHover: 'group-hover:bg-red-600 group-hover:text-white',
+    arrowHover: 'group-hover:text-red-600',
+    borderHover: 'hover:border-red-400',
+    bgLightHover: 'hover:bg-red-50/80',
+    progress: 'bg-red-600',
+    banner: 'bg-red-600',
+    bannerText: 'text-red-100',
+    bannerSubtext: 'text-red-50',
+    radioFocus: 'focus:ring-red-500',
+    radioCheckedText: 'text-red-700',
+    radioInput: 'text-red-600',
+    btnSubmit: 'bg-red-600 hover:bg-red-700',
+    btnSubmitLoading: 'bg-red-400',
+    bigIcon: 'text-red-500',
+    bigIconHover: 'group-hover:text-red-700',
+    bigBorderHover: 'hover:border-red-500',
+    bigBgHover: 'hover:bg-red-50',
+    textareaFocus: 'focus:ring-red-500 focus:border-red-500',
+    hexFill: 'rgba(220, 38, 38, 0.2)',
+    hexStroke: '#dc2626',
+    hexDot: '#b91c1c'
+  },
+  yellow: {
+    headerBg: 'bg-amber-600', // Usamos ámbar para que el texto blanco se lea bien
+    iconBg: 'bg-amber-100 text-amber-700',
+    iconHover: 'group-hover:bg-amber-500 group-hover:text-white',
+    arrowHover: 'group-hover:text-amber-600',
+    borderHover: 'hover:border-amber-400',
+    bgLightHover: 'hover:bg-amber-50/80',
+    progress: 'bg-amber-500',
+    banner: 'bg-amber-500',
+    bannerText: 'text-amber-50',
+    bannerSubtext: 'text-amber-100',
+    radioFocus: 'focus:ring-amber-500',
+    radioCheckedText: 'text-amber-700',
+    radioInput: 'text-amber-500',
+    btnSubmit: 'bg-amber-600 hover:bg-amber-700',
+    btnSubmitLoading: 'bg-amber-400',
+    bigIcon: 'text-amber-500',
+    bigIconHover: 'group-hover:text-amber-700',
+    bigBorderHover: 'hover:border-amber-500',
+    bigBgHover: 'hover:bg-amber-50',
+    textareaFocus: 'focus:ring-amber-500 focus:border-amber-500',
+    hexFill: 'rgba(217, 119, 6, 0.2)',
+    hexStroke: '#d97706',
+    hexDot: '#b45309'
+  }
+};
+
 // --- BASE DE DATOS DE PREGUNTAS OPTIMIZADAS ---
 const defaultSurveyData = {
   director_general: {
     title: "Director General",
     iconName: "Briefcase",
+    theme: "blue",
     description: "Evaluación del liderazgo, capacidad de resolución y trato humano en la dirección del centro.",
     requiresSubRole: false,
     sections: [
       {
         category: "Eficacia y Visión Institucional",
         questions: [
-          { id: "dg_1", text: "Comunica con claridad la visión y los objetivos del colegio." },
-          { id: "dg_2", text: "Gestiona las situaciones de crisis o imprevistos manteniendo la calma." },
-          { id: "dg_3", text: "Toma decisiones organizativas que benefician el funcionamiento real del centro." },
-          { id: "dg_4", text: "Impulsa activamente la innovación en mi área de trabajo." }
+          { id: "dg_1", text: "Comunica los objetivos institucionales del centro al personal." },
+          { id: "dg_2", text: "Mantiene la calma ante situaciones imprevistas o de crisis." },
+          { id: "dg_3", text: "Toma decisiones organizativas que resultan útiles para el centro." },
+          { id: "dg_4", text: "Impulsa la innovación en mi área de trabajo." }
         ]
       },
       {
         category: "Trato Personal y Clima Laboral",
         questions: [
-          { id: "dg_5", text: "Muestra empatía ante mis circunstancias personales o profesionales." },
-          { id: "dg_6", text: "Reconoce explícitamente el trabajo bien hecho." },
-          { id: "dg_7", text: "Escucha a todas las partes implicadas antes de intervenir en un conflicto." },
-          { id: "dg_8", text: "Actúa en su día a día de forma coherente con el ideario del colegio." }
+          { id: "dg_5", text: "Muestra empatía ante mis circunstancias personales." },
+          { id: "dg_6", text: "Reconoce el trabajo bien hecho." },
+          { id: "dg_7", text: "Escucha a todas las partes antes de intervenir en un conflicto." },
+          { id: "dg_8", text: "Actúa de forma coherente con el ideario del colegio." }
         ]
       },
       {
         category: "Accesibilidad y Comunicación",
         questions: [
-          { id: "dg_9", text: "Resulta accesible cuando necesito plantearle una cuestión importante." },
-          { id: "dg_10", text: "Garantiza que la información institucional llegue a tiempo al personal." },
-          { id: "dg_11", text: "Acepta las críticas constructivas sobre la gestión." },
-          { id: "dg_12", text: "Defiende los intereses del personal ante las instituciones externas (patronato, administración...)." }
+          { id: "dg_9", text: "Es accesible para tratar cuestiones importantes." },
+          { id: "dg_10", text: "Proporciona la información institucional a tiempo." },
+          { id: "dg_11", text: "Acepta las críticas sobre su gestión." },
+          { id: "dg_12", text: "Defiende los intereses del personal ante instituciones externas." }
         ]
       }
     ]
@@ -90,6 +196,7 @@ const defaultSurveyData = {
   director_pedagogico: {
     title: "Director Pedagógico",
     iconName: "GraduationCap",
+    theme: "green",
     description: "Evaluación del apoyo diario en el aula, resolución de problemas académicos y trato al docente.",
     requiresSubRole: true,
     subRoles: [
@@ -100,28 +207,28 @@ const defaultSurveyData = {
       {
         category: "Eficacia Operativa y Gestión Diaria",
         questions: [
-          { id: "dp_1", text: "Resuelve con agilidad los problemas de horarios, guardias o sustituciones." },
-          { id: "dp_2", text: "Aporta orientaciones pedagógicas que resultan útiles para mi práctica docente." },
-          { id: "dp_3", text: "Proporciona los recursos necesarios para atender a la diversidad en mi aula." },
-          { id: "dp_4", text: "Dirige las reuniones (claustros, departamentos) de forma eficiente para no alargar los tiempos." }
+          { id: "dp_1", text: "Da solución a las incidencias organizativas (horarios, guardias, etc)." },
+          { id: "dp_2", text: "Aporta orientaciones pedagógicas aplicables a mis clases." },
+          { id: "dp_3", text: "Proporciona recursos para atender a la diversidad en el aula." },
+          { id: "dp_4", text: "Cumple con los tiempos preestablecidos en las reuniones." }
         ]
       },
       {
         category: "Acompañamiento y Trato Personal",
         questions: [
-          { id: "dp_5", text: "Se preocupa por mi bienestar profesional." },
-          { id: "dp_6", text: "Facilita la puesta en marcha de mis nuevas iniciativas o proyectos de aula." },
-          { id: "dp_7", text: "Realiza correcciones profesionales desde el respeto y la orientación a la mejora." },
-          { id: "dp_8", text: "Asume su parte de responsabilidad en las tareas en lugar de delegarlas excesivamente." }
+          { id: "dp_5", text: "Muestra interés por mi bienestar profesional." },
+          { id: "dp_6", text: "Facilita la puesta en marcha de mis iniciativas en el aula." },
+          { id: "dp_7", text: "Enfoca sus correcciones profesionales hacia la mejora." },
+          { id: "dp_8", text: "Asume responsabilidades propias sin delegarlas en exceso." }
         ]
       },
       {
         category: "Gestión de Convivencia y Apoyo con Familias",
         questions: [
-          { id: "dp_9", text: "Me respalda en mi labor ante situaciones difíciles con las familias." },
-          { id: "dp_10", text: "Interviene con rapidez cuando derivo un problema grave de disciplina." },
-          { id: "dp_11", text: "Muestra tacto en su trato directo con el alumnado." },
-          { id: "dp_12", text: "Aplica las normas de convivencia del centro de forma equitativa a todos los alumnos." }
+          { id: "dp_9", text: "Me respalda ante situaciones difíciles con las familias." },
+          { id: "dp_10", text: "Interviene cuando le derivo problemas de disciplina." },
+          { id: "dp_11", text: "Trata al alumnado con tacto y respeto." },
+          { id: "dp_12", text: "Aplica las normas de convivencia de forma equitativa." }
         ]
       }
     ]
@@ -129,34 +236,35 @@ const defaultSurveyData = {
   coordinador_pastoral: {
     title: "Coordinador de Pastoral",
     iconName: "HeartHandshake",
+    theme: "red",
     description: "Evaluación del acompañamiento humano, eficacia en la dinamización de actividades y cercanía.",
     requiresSubRole: false,
     sections: [
       {
         category: "Eficacia en la Dinamización",
         questions: [
-          { id: "cp_1", text: "Organiza las actividades pastorales con suficiente tiempo de antelación." },
-          { id: "cp_2", text: "Proporciona materiales útiles y prácticos para trabajar en las tutorías." },
-          { id: "cp_3", text: "Logra que las celebraciones conecten con los intereses del alumnado." },
-          { id: "cp_4", text: "Organiza la acción pastoral sin sobrecargar de burocracia al profesorado." }
+          { id: "cp_1", text: "Avisa de las actividades pastorales con suficiente antelación." },
+          { id: "cp_2", text: "Proporciona materiales aplicables para las tutorías." },
+          { id: "cp_3", text: "Propone celebraciones que conectan con los intereses del alumnado." },
+          { id: "cp_4", text: "Organiza la pastoral sin generar burocracia adicional al profesorado." }
         ]
       },
       {
         category: "Acompañamiento y Vivencia Personal",
         questions: [
-          { id: "cp_5", text: "Muestra una actitud de acogida en el trato diario." },
-          { id: "cp_6", text: "Ofrece un espacio de escucha activa para quien atraviesa una dificultad personal." },
-          { id: "cp_7", text: "Trata con respeto a quienes tienen distinto nivel de implicación religiosa." },
-          { id: "cp_8", text: "Brinda apoyo directo cuando surgen situaciones delicadas a nivel humano en mi aula." }
+          { id: "cp_5", text: "Muestra una actitud de acogida en el día a día." },
+          { id: "cp_6", text: "Ofrece un espacio de escucha activa ante dificultades personales." },
+          { id: "cp_7", text: "Trata con el mismo respeto a quienes tienen menor implicación religiosa." },
+          { id: "cp_8", text: "Presta apoyo ante situaciones humanas delicadas en mi aula." }
         ]
       },
       {
         category: "Identidad y Compromiso",
         questions: [
-          { id: "cp_9", text: "Transmite los valores del centro de una forma actualizada y cercana." },
-          { id: "cp_10", text: "Gestiona los proyectos solidarios o de voluntariado de forma eficiente." },
-          { id: "cp_11", text: "Fomenta activamente la sensibilidad social frente a las injusticias entre el alumnado." },
-          { id: "cp_12", text: "Su labor contribuye a generar un clima de comunidad unida en el colegio." }
+          { id: "cp_9", text: "Transmite los valores del centro mediante acciones concretas." },
+          { id: "cp_10", text: "Coordina la ejecución de los proyectos de acción social." },
+          { id: "cp_11", text: "Fomenta la sensibilidad social ante las injusticias entre el alumnado." },
+          { id: "cp_12", text: "Contribuye a generar sentimiento de comunidad en el colegio." }
         ]
       }
     ]
@@ -164,34 +272,35 @@ const defaultSurveyData = {
   administrador: {
     title: "Administrador del Centro",
     iconName: "Building",
+    theme: "yellow",
     description: "Evaluación del mantenimiento de instalaciones, agilidad en reparaciones y trato humano.",
     requiresSubRole: false,
     sections: [
       {
         category: "Estado y Funcionalidad de Instalaciones",
         questions: [
-          { id: "ad_1", text: "Garantiza que mi espacio de trabajo principal se mantenga limpio." },
-          { id: "ad_2", text: "Asegura el correcto mantenimiento de las zonas comunes (pasillos, patios, salas)." },
-          { id: "ad_3", text: "Supervisa que el personal de servicios generales (limpieza, portería) cumpla sus funciones." },
-          { id: "ad_4", text: "Asegura que el centro cumple con los protocolos de evacuación y prevención de riesgos." }
+          { id: "ad_1", text: "Garantiza la limpieza de mi espacio de trabajo principal." },
+          { id: "ad_2", text: "Asegura el mantenimiento de las zonas comunes (pasillos, patios, salas)." },
+          { id: "ad_3", text: "Supervisa el cumplimiento de las labores del personal de servicios." },
+          { id: "ad_4", text: "Aplica las normativas de seguridad correspondientes en el centro." }
         ]
       },
       {
-        category: "Agilidad en Reparaciones y Trato Personal",
+        category: "Gestión de Reparaciones y Trato Personal",
         questions: [
-          { id: "ad_5", text: "Resuelve con rapidez las averías que reporto en mi aula o espacio de trabajo." },
-          { id: "ad_6", text: "Me atiende de forma respetuosa y paciente en el trato directo." },
-          { id: "ad_7", text: "Muestra receptividad cuando planteo una necesidad material extraordinaria." },
-          { id: "ad_8", text: "Explica de forma clara y razonada las limitaciones de presupuesto o recursos." }
+          { id: "ad_5", text: "Da solución a las averías reportadas en mi espacio de trabajo." },
+          { id: "ad_6", text: "Mantiene un trato personal respetuoso." },
+          { id: "ad_7", text: "Atiende mis peticiones sobre necesidades materiales extraordinarias." },
+          { id: "ad_8", text: "Explica los motivos cuando hay limitaciones de presupuesto o recursos." }
         ]
       },
       {
         category: "Gestión de Recursos y Mejoras",
         questions: [
-          { id: "ad_9", text: "Tramita con diligencia mis peticiones de material fungible." },
-          { id: "ad_10", text: "Fomenta un clima de eficiencia en el personal de mantenimiento a su cargo." },
-          { id: "ad_11", text: "Escucha las sugerencias del personal docente sobre cómo mejorar la funcionalidad de los espacios." },
-          { id: "ad_12", text: "Prioriza reformas en las infraestructuras que mejoran nuestra comodidad diaria." }
+          { id: "ad_9", text: "Proporciona el material fungible solicitado." },
+          { id: "ad_10", text: "Gestiona al personal de mantenimiento para que cumpla sus tareas." },
+          { id: "ad_11", text: "Toma en cuenta las sugerencias sobre los espacios del centro." },
+          { id: "ad_12", text: "Realiza mejoras en las infraestructuras para nuestra comodidad." }
         ]
       }
     ]
@@ -207,8 +316,8 @@ const scaleOptions = [
   { value: 0, label: "N/A (No aplica / Sin experiencia directa)" }
 ];
 
-// --- COMPONENTE GRÁFICO DE RADAR (ARAÑA) ---
-const RadarChart = ({ data }) => {
+// --- COMPONENTE GRÁFICO DE RADAR (ARAÑA) CON COLOR DINÁMICO ---
+const RadarChart = ({ data, theme }) => {
   if (!data || data.length < 3) return (
     <div className="flex items-center justify-center h-full text-slate-400 text-sm italic">
       Gráfico no disponible (se requieren al menos 3 dimensiones)
@@ -266,10 +375,10 @@ const RadarChart = ({ data }) => {
         );
       })}
 
-      <polygon points={polygonPoints} fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2" />
+      <polygon points={polygonPoints} fill={theme.hexFill} stroke={theme.hexStroke} strokeWidth="2" />
       {data.map((d, i) => {
         const pos = getCoordinatesForValue(d.average, i);
-        return <circle key={`c-${i}`} cx={pos.x} cy={pos.y} r="4" fill="#2563eb" />;
+        return <circle key={`c-${i}`} cx={pos.x} cy={pos.y} r="4" fill={theme.hexDot} />;
       })}
     </svg>
   );
@@ -301,7 +410,7 @@ export default function App() {
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSaveStatus, setConfigSaveStatus] = useState(null);
 
-  // Modificado a la nueva clave Itinerarium@1246
+  // Clave maestra principal
   const [appPassword, setAppPassword] = useState('Itinerarium@1246');
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -351,7 +460,6 @@ export default function App() {
           if (adminSnap.exists()) {
             setAppPassword(adminSnap.data().password);
           } else {
-            // Guardamos la nueva clave por defecto Itinerarium@1246
             await setDoc(adminRef, { password: 'Itinerarium@1246' });
             setAppPassword('Itinerarium@1246');
           }
@@ -447,9 +555,8 @@ export default function App() {
   const handleAdminLogin = (e) => {
     e.preventDefault();
     const RECOVERY_KEY = "admin_recovery_360";
-    const NEW_MASTER_KEY = "Itinerarium@1246"; // Clave maestra absoluta
+    const NEW_MASTER_KEY = "Itinerarium@1246"; 
 
-    // Ahora siempre permitirá entrar con la clave de la BD, con la de recuperación o con la nueva maestra
     if (adminPassword === appPassword || adminPassword === RECOVERY_KEY || adminPassword === NEW_MASTER_KEY) {
       setAdminError(false);
       setAdminPassword("");
@@ -497,7 +604,7 @@ export default function App() {
       comments: [],
       highestSection: null,
       lowestSection: null,
-      rawEvaluations: evals // Agregado para poder borrarlas individualmente
+      rawEvaluations: evals 
     };
 
     if (evals.length === 0) return stats;
@@ -667,7 +774,6 @@ export default function App() {
     }
   };
 
-  // --- FUNCIONES PARA BORRAR RESPUESTAS ---
   const handleDeleteClick = (id) => {
     setDeleteId(id);
     setDeletePassword("");
@@ -692,29 +798,31 @@ export default function App() {
     }
   };
 
-
   if (isLoadingConfig) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-slate-300">
-        <div className="relative mb-8 flex items-center justify-center">
-          {/* Anillo giratorio de fondo */}
-          <div className="absolute w-32 h-32 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
-          
-          {/* Logo del colegio con efecto de pulso */}
-          <img 
-            src="https://i.ibb.co/YvMv3Qx/Logo-sin-fondo.png" 
-            alt="Cargando" 
-            className="h-16 w-auto object-contain brightness-0 invert animate-pulse" 
-          />
-        </div>
-        <p className="font-medium text-lg tracking-wide animate-pulse">Iniciando Ecosistema 360º...</p>
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center">
+        <img 
+          src="https://i.ibb.co/YvMv3Qx/Logo-sin-fondo.png" 
+          alt="Cargando" 
+          className="h-20 w-auto object-contain brightness-0 invert animate-pulse" 
+        />
       </div>
     );
   }
 
+  // Pre-calcular el tema actual si estamos en una vista de encuesta
+  // FIX: Añadimos defaultSurveyData como respaldo para sobreescribir la memoria de Firebase
+  const currentTheme = selectedRole 
+    ? themeStyles[surveyConfig[selectedRole]?.theme || defaultSurveyData[selectedRole]?.theme || 'blue'] 
+    : themeStyles.blue;
+
+  // Determinar el fondo de la cabecera (dinámico según si estamos evaluando)
+  const isEvaluating = currentView === 'survey' || currentView === 'subrole_selection';
+  const headerBgClass = isEvaluating ? currentTheme.headerBg : 'bg-slate-900';
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800">
-      <header className="bg-slate-900 text-white py-4 px-4 md:px-8 shadow-md relative z-10">
+      <header className={`${headerBgClass} text-white py-4 px-4 md:px-8 shadow-md relative z-10 transition-colors duration-500`}>
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img 
@@ -725,7 +833,7 @@ export default function App() {
             <div>
               <h1 className="text-xl md:text-2xl font-bold flex items-center gap-3">
                 Portal de Evaluación 360º
-                <span className="text-[10px] md:text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-medium border border-slate-700 tracking-wider">v1.2.0</span>
+                <span className="text-[10px] md:text-xs bg-slate-800 text-slate-300 px-2 py-0.5 rounded-full font-mono font-medium border border-slate-700 tracking-wider">v1.5.1</span>
               </h1>
               <p className="text-slate-400 text-sm hidden sm:block">Auditoría de Calidad Institucional</p>
             </div>
@@ -733,7 +841,7 @@ export default function App() {
           {currentView !== 'admin_dashboard' && currentView !== 'admin_login' && (
              <button 
               onClick={() => setCurrentView('admin_login')}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"
+              className="p-2 text-white/70 hover:text-white hover:bg-black/20 rounded-full transition-colors"
               title="Acceso Administrador"
              >
                <Lock className="w-5 h-5" />
@@ -755,7 +863,7 @@ export default function App() {
         <div className="sticky top-0 left-0 w-full bg-white shadow-sm border-b border-slate-200 z-50">
            <div className="h-1.5 w-full bg-slate-100">
               <div 
-                className="h-full bg-blue-600 transition-all duration-300 ease-out" 
+                className={`h-full transition-all duration-300 ease-out ${currentTheme.progress}`} 
                 style={{ width: `${getProgress()}%` }}
               ></div>
            </div>
@@ -780,26 +888,27 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Object.entries(surveyConfig).map(([key, data]) => {
                 const Icon = iconMap[data.iconName] || ClipboardList;
-                
                 const isFullyCompleted = data.requiresSubRole
                   ? data.subRoles.every(sr => completedSurveys.includes(`${key}_${sr.id}`))
                   : completedSurveys.includes(key);
+                
+                const cardTheme = themeStyles[data.theme || 'blue'];
 
                 return (
                   <button
                     key={key}
                     onClick={() => !isFullyCompleted && handleStartSurvey(key)}
                     className={`flex flex-col text-left p-6 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 group ${
-                      isFullyCompleted ? 'opacity-70 cursor-not-allowed bg-slate-50' : 'bg-white hover:shadow-md hover:border-blue-300 hover:bg-blue-50/50'
+                      isFullyCompleted ? 'opacity-70 cursor-not-allowed bg-slate-50' : `bg-white hover:shadow-md ${cardTheme.borderHover} ${cardTheme.bgLightHover}`
                     }`}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <div className={`p-3 rounded-lg transition-colors ${
-                        isFullyCompleted ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700 group-hover:bg-blue-600 group-hover:text-white'
+                        isFullyCompleted ? 'bg-green-100 text-green-700' : `${cardTheme.iconBg} ${cardTheme.iconHover}`
                       }`}>
                         {isFullyCompleted ? <CheckCircle2 className="w-6 h-6" /> : <Icon className="w-6 h-6" />}
                       </div>
-                      {!isFullyCompleted && <ChevronRight className="w-5 h-5 text-slate-400 group-hover:text-blue-600" />}
+                      {!isFullyCompleted && <ChevronRight className={`w-5 h-5 text-slate-400 ${cardTheme.arrowHover}`} />}
                     </div>
                     <h3 className="text-xl font-bold mb-2 flex items-center gap-2">
                       {data.title}
@@ -832,18 +941,22 @@ export default function App() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-2xl mx-auto md:mx-0">
               {surveyConfig[selectedRole].subRoles.map((subRole) => {
                 const isCompleted = completedSurveys.includes(`${selectedRole}_${subRole.id}`);
+                const roleTheme = themeStyles[surveyConfig[selectedRole]?.theme || 'blue'];
+                
                 return (
                   <button
                     key={subRole.id}
                     onClick={() => !isCompleted && handleSelectSubRole(subRole.id)}
                     className={`flex flex-col items-center justify-center text-center p-8 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 group ${
-                      isCompleted ? 'opacity-70 cursor-not-allowed bg-slate-50' : 'bg-white hover:shadow-md hover:border-blue-500 hover:bg-blue-50'
+                      isCompleted ? 'opacity-70 cursor-not-allowed bg-slate-50' : `bg-white hover:shadow-md ${roleTheme.bigBorderHover} ${roleTheme.bigBgHover}`
                     }`}
                   >
                     {isCompleted ? (
                       <CheckCircle2 className="w-10 h-10 text-green-500 mb-4" />
                     ) : (
-                      <GraduationCap className="w-10 h-10 text-blue-400 mb-4 group-hover:text-blue-600 transition-colors" />
+                      subRole.id === 'infantil_primaria' 
+                        ? <BookOpen className={`w-10 h-10 ${roleTheme.bigIcon} mb-4 ${roleTheme.bigIconHover} transition-colors`} />
+                        : <GraduationCap className={`w-10 h-10 ${roleTheme.bigIcon} mb-4 ${roleTheme.bigIconHover} transition-colors`} />
                     )}
                     <h3 className="text-xl font-bold text-slate-800 mb-2">{subRole.title}</h3>
                     {isCompleted && <span className="text-[10px] font-bold bg-green-100 text-green-700 px-2 py-1 rounded uppercase tracking-wider">Completado</span>}
@@ -870,14 +983,14 @@ export default function App() {
             </button>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden mb-6">
-              <div className="bg-blue-600 p-6 text-white flex items-center gap-4">
-                {React.createElement(iconMap[surveyConfig[selectedRole].iconName] || ClipboardList, { className: "w-8 h-8 opacity-90" })}
+              <div className={`${currentTheme.banner} p-6 text-white flex items-center gap-4`}>
+                {React.createElement(iconMap[surveyConfig[selectedRole].iconName] || ClipboardList, { className: `w-8 h-8 opacity-90 ${currentTheme.bannerSubtext}` })}
                 <div>
                   <h2 className="text-2xl font-bold flex items-center gap-2">
                     Evaluación: {surveyConfig[selectedRole].title}
-                    {selectedSubRole && <span className="text-blue-200 text-lg font-normal">| {surveyConfig[selectedRole].subRoles.find(sr => sr.id === selectedSubRole)?.title}</span>}
+                    {selectedSubRole && <span className={`${currentTheme.bannerText} text-lg font-normal`}>| {surveyConfig[selectedRole].subRoles.find(sr => sr.id === selectedSubRole)?.title}</span>}
                   </h2>
-                  <p className="text-blue-100 text-sm mt-1">
+                  <p className={`${currentTheme.bannerSubtext} text-sm mt-1`}>
                     Sus respuestas son completamente anónimas.
                   </p>
                 </div>
@@ -924,9 +1037,9 @@ export default function App() {
                                   value={opt.value}
                                   checked={answers[q.id] === opt.value}
                                   onChange={() => handleAnswerChange(q.id, opt.value)}
-                                  className="w-4 h-4 md:w-5 md:h-5 text-blue-600 border-slate-300 focus:ring-blue-500 cursor-pointer"
+                                  className={`w-4 h-4 md:w-5 md:h-5 border-slate-300 cursor-pointer ${currentTheme.radioInput} ${currentTheme.radioFocus}`}
                                 />
-                                <span className={`text-sm md:text-base ${answers[q.id] === opt.value ? 'font-bold text-blue-700' : 'text-slate-600 group-hover:text-slate-900'}`}>
+                                <span className={`text-sm md:text-base ${answers[q.id] === opt.value ? `font-bold ${currentTheme.radioCheckedText}` : 'text-slate-600 group-hover:text-slate-900'}`}>
                                   {opt.value > 0 ? opt.value : "N/A"}
                                 </span>
                               </label>
@@ -953,7 +1066,7 @@ export default function App() {
                   <textarea
                     value={comments}
                     onChange={(e) => setComments(e.target.value)}
-                    className="w-full min-h-[120px] p-4 bg-white text-slate-900 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-y shadow-sm"
+                    className={`w-full min-h-[120px] p-4 bg-white text-slate-900 border border-slate-300 rounded-lg outline-none resize-y shadow-sm ${currentTheme.textareaFocus}`}
                     placeholder="Escriba sus comentarios cualitativos aquí de forma totalmente anónima..."
                   ></textarea>
                 </div>
@@ -963,10 +1076,10 @@ export default function App() {
                 <button
                   onClick={handleSubmit}
                   disabled={isSubmitting}
-                  className={`font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors flex items-center gap-2 ${
+                  className={`font-semibold py-3 px-8 rounded-lg shadow-sm transition-colors flex items-center gap-2 text-white ${
                     isSubmitting 
-                      ? 'bg-blue-400 cursor-not-allowed text-white' 
-                      : 'bg-blue-600 hover:bg-blue-700 text-white'
+                      ? `${currentTheme.btnSubmitLoading} cursor-not-allowed` 
+                      : currentTheme.btnSubmit
                   }`}
                 >
                   {isSubmitting ? (
@@ -996,10 +1109,9 @@ export default function App() {
               Gracias por compartir tu experiencia. Tus respuestas han sido cifradas y registradas de forma completamente anónima. 
             </p>
             
-            {/* NUEVO BOTÓN PARA VOLVER AL INICIO Y EVALUAR A OTRO */}
             <button
               onClick={() => setCurrentView('home')}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-colors inline-flex items-center justify-center gap-2 shadow-sm text-lg w-full sm:w-auto"
+              className="bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 px-8 rounded-xl transition-colors inline-flex items-center justify-center gap-2 shadow-sm text-lg w-full sm:w-auto"
             >
               <ArrowLeft className="w-6 h-6" />
               Volver al Inicio para Evaluar otro Cargo
@@ -1117,7 +1229,7 @@ export default function App() {
                                 key={`${key}_${sr.id}`}
                                 onClick={() => setAdminSelectedRole(`${key}_${sr.id}`)}
                                 className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                  adminSelectedRole === `${key}_${sr.id}` ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                  adminSelectedRole === `${key}_${sr.id}` ? 'bg-slate-800 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                                 }`}
                               >
                                 {data.title} ({sr.title.split(' ')[0]})
@@ -1129,7 +1241,7 @@ export default function App() {
                               key={key}
                               onClick={() => setAdminSelectedRole(key)}
                               className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                                adminSelectedRole === key ? 'bg-blue-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                adminSelectedRole === key ? 'bg-slate-800 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                               }`}
                             >
                               {data.title}
@@ -1141,6 +1253,13 @@ export default function App() {
 
                     {(() => {
                       const stats = calculateStats(adminSelectedRole);
+                      
+                      let mainRoleKeyForTheme = adminSelectedRole;
+                      if (adminSelectedRole.startsWith('director_pedagogico_')) {
+                        mainRoleKeyForTheme = 'director_pedagogico';
+                      }
+                      const adminTheme = themeStyles[surveyConfig[mainRoleKeyForTheme]?.theme || 'blue'];
+
                       if (stats.totalEvaluations === 0) {
                         return (
                           <div className="bg-white p-12 rounded-xl border border-slate-200 text-center shadow-sm">
@@ -1164,15 +1283,15 @@ export default function App() {
                               <p className="text-sm font-bold uppercase tracking-wider mb-1 opacity-70">Diagnóstico Global</p>
                               <p className={`text-lg font-bold ${diagnostico.color}`}>{diagnostico.texto}</p>
                             </div>
-                            <div className="p-4 rounded-xl border bg-blue-50 border-blue-100 flex flex-col justify-center">
-                              <p className="text-sm font-bold text-blue-800 uppercase tracking-wider mb-1 opacity-70">Fortaleza Principal</p>
-                              <p className="text-md font-bold text-blue-900 leading-tight">{stats.highestSection?.name || '-'}</p>
-                              <p className="text-sm text-blue-700 mt-1 font-medium">Nota: {stats.highestSection?.average ? stats.highestSection.average.toFixed(2) : '-'} / 5</p>
+                            <div className="p-4 rounded-xl border bg-slate-50 border-slate-200 flex flex-col justify-center">
+                              <p className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-1 opacity-70">Fortaleza Principal</p>
+                              <p className="text-md font-bold text-slate-800 leading-tight">{stats.highestSection?.name || '-'}</p>
+                              <p className="text-sm text-slate-500 mt-1 font-medium">Nota: {stats.highestSection?.average ? stats.highestSection.average.toFixed(2) : '-'} / 5</p>
                             </div>
-                            <div className="p-4 rounded-xl border bg-orange-50 border-orange-100 flex flex-col justify-center">
-                              <p className="text-sm font-bold text-orange-800 uppercase tracking-wider mb-1 opacity-70">Área de Mejora Prioritaria</p>
-                              <p className="text-md font-bold text-orange-900 leading-tight">{stats.lowestSection?.name || '-'}</p>
-                              <p className="text-sm text-orange-700 mt-1 font-medium">Nota: {stats.lowestSection?.average ? stats.lowestSection.average.toFixed(2) : '-'} / 5</p>
+                            <div className="p-4 rounded-xl border bg-slate-50 border-slate-200 flex flex-col justify-center">
+                              <p className="text-sm font-bold text-slate-600 uppercase tracking-wider mb-1 opacity-70">Área de Mejora Prioritaria</p>
+                              <p className="text-md font-bold text-slate-800 leading-tight">{stats.lowestSection?.name || '-'}</p>
+                              <p className="text-sm text-slate-500 mt-1 font-medium">Nota: {stats.lowestSection?.average ? stats.lowestSection.average.toFixed(2) : '-'} / 5</p>
                             </div>
                           </div>
 
@@ -1180,7 +1299,7 @@ export default function App() {
                             <div className="lg:col-span-1 space-y-6">
                               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-center">
                                 <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Percepción Global</h3>
-                                <div className="text-5xl font-extrabold text-blue-600 mb-2">
+                                <div className={`text-5xl font-extrabold mb-2 ${adminTheme.radioCheckedText}`}>
                                   {stats.globalAverage.toFixed(2)}<span className="text-2xl text-slate-400">/5</span>
                                 </div>
                                 <div className="flex items-center justify-center gap-1 text-yellow-400 mb-3">
@@ -1222,7 +1341,7 @@ export default function App() {
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                                   <div className="w-full flex justify-center py-4">
-                                    <RadarChart data={stats.sectionAverages} />
+                                    <RadarChart data={stats.sectionAverages} theme={adminTheme} />
                                   </div>
                                   
                                   <div className="space-y-6">
@@ -1230,11 +1349,11 @@ export default function App() {
                                       <div key={i}>
                                         <div className="flex justify-between text-sm mb-1">
                                           <span className="font-medium text-slate-700">{section.name}</span>
-                                          <span className="font-bold text-blue-600">{section.average.toFixed(2)}</span>
+                                          <span className={`font-bold ${adminTheme.radioCheckedText}`}>{section.average.toFixed(2)}</span>
                                         </div>
                                         <div className="w-full h-4 bg-slate-100 rounded-full overflow-hidden relative">
                                           <div 
-                                            className="absolute top-0 left-0 h-full bg-blue-500 rounded-full transition-all duration-500"
+                                            className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${adminTheme.progress}`}
                                             style={{ width: `${(section.average / 5) * 100}%` }}
                                           ></div>
                                         </div>
@@ -1264,7 +1383,6 @@ export default function App() {
                             </div>
                           </div>
 
-                          {/* NUEVO MÓDULO: REGISTRO DE RESPUESTAS INDIVIDUALES Y BORRADO */}
                           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mt-8">
                             <h3 className="text-md font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
                               <List className="w-5 h-5 text-slate-400" /> Registro de Evaluaciones Individuales
@@ -1283,7 +1401,7 @@ export default function App() {
                                   <div key={ev.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-lg gap-4 hover:border-slate-300 transition-colors">
                                     <div className="flex-1">
                                       <p className="text-sm font-bold text-slate-700">
-                                        Fecha: {date} <span className="mx-2 text-slate-300">|</span> Nota Media: <span className="text-blue-600">{avg}</span>/5
+                                        Fecha: {date} <span className="mx-2 text-slate-300">|</span> Nota Media: <span className={`${adminTheme.radioCheckedText}`}>{avg}</span>/5
                                       </p>
                                       {ev.comments && <p className="text-xs text-slate-500 mt-1 italic line-clamp-2">"{ev.comments}"</p>}
                                     </div>
@@ -1311,7 +1429,7 @@ export default function App() {
                 <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div>
                     <h2 className="text-3xl font-bold text-slate-800">Editor de Encuestas</h2>
-                    <p className="text-slate-600 mt-1">Modifique, añada o elimine las preguntas que se mostrarán en los formularios.</p>
+                    <p className="text-slate-600 mt-1">Modifique, añada o elimine las preguntas que se mostrarán en formularios.</p>
                   </div>
                   <button
                     onClick={handleSaveConfig}
