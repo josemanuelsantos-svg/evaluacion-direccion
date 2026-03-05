@@ -22,13 +22,14 @@ import {
   Trash2,
   Plus,
   Save,
-  Key
+  Key,
+  List
 } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, doc, getDoc, setDoc, deleteDoc, serverTimestamp, query, orderBy } from 'firebase/firestore';
 
-// Configuración de Firebase (Tu proyecto real para StackBlitz / Vercel)
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDpRCVDgKY69zsx5dR2CJXr6nKmmGZbQao",
   authDomain: "evaluacion-direccion.firebaseapp.com",
@@ -41,7 +42,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Mapeo de iconos para poder guardar la configuración en Firebase de forma segura (como texto)
+// Mapeo de iconos
 const iconMap = {
   Briefcase: Briefcase,
   GraduationCap: GraduationCap,
@@ -49,7 +50,7 @@ const iconMap = {
   Building: Building
 };
 
-// --- BASE DE DATOS DE PREGUNTAS POR DEFECTO ---
+// --- BASE DE DATOS DE PREGUNTAS OPTIMIZADAS ---
 const defaultSurveyData = {
   director_general: {
     title: "Director General",
@@ -60,28 +61,28 @@ const defaultSurveyData = {
       {
         category: "Eficacia y Visión Institucional",
         questions: [
-          { id: "dg_1", text: "Siento que transmite una visión clara y motivadora que da sentido a mi trabajo diario." },
-          { id: "dg_2", text: "Ante imprevistos o crisis, gestiona la situación con seguridad, eficacia y tranquilidad." },
-          { id: "dg_3", text: "Toma decisiones organizativas ágiles que realmente mejoran el funcionamiento del centro." },
-          { id: "dg_4", text: "Me siento impulsado/a por la dirección para innovar, formarme y mejorar continuamente en mi labor." }
+          { id: "dg_1", text: "Comunica con claridad la visión y los objetivos del colegio." },
+          { id: "dg_2", text: "Gestiona las situaciones de crisis o imprevistos manteniendo la calma." },
+          { id: "dg_3", text: "Toma decisiones organizativas que benefician el funcionamiento real del centro." },
+          { id: "dg_4", text: "Impulsa activamente la innovación en mi área de trabajo." }
         ]
       },
       {
         category: "Trato Personal y Clima Laboral",
         questions: [
-          { id: "dg_5", text: "En mi trato personal con él/ella, percibo cercanía, respeto y empatía hacia mis circunstancias." },
-          { id: "dg_6", text: "Siento que mi esfuerzo diario y mis aportaciones son valoradas y reconocidas activamente." },
-          { id: "dg_7", text: "Cuando surgen conflictos, interviene de manera justa, escuchando a todas las partes y buscando soluciones." },
-          { id: "dg_8", text: "Muestra coherencia personal entre los valores que predica el centro y sus decisiones diarias." }
+          { id: "dg_5", text: "Muestra empatía ante mis circunstancias personales o profesionales." },
+          { id: "dg_6", text: "Reconoce explícitamente el trabajo bien hecho." },
+          { id: "dg_7", text: "Escucha a todas las partes implicadas antes de intervenir en un conflicto." },
+          { id: "dg_8", text: "Actúa en su día a día de forma coherente con el ideario del colegio." }
         ]
       },
       {
         category: "Accesibilidad y Comunicación",
         questions: [
-          { id: "dg_9", text: "Me resulta fácil acceder a él/ella cuando necesito plantear una inquietud o propuesta importante." },
-          { id: "dg_10", text: "La comunicación institucional (reuniones, circulares) es clara, transparente y llega a tiempo." },
-          { id: "dg_11", text: "Escucha activamente las críticas constructivas y demuestra voluntad de cambiar lo que no funciona." },
-          { id: "dg_12", text: "Defiende y representa con eficacia los intereses de los trabajadores y del colegio hacia el exterior." }
+          { id: "dg_9", text: "Resulta accesible cuando necesito plantearle una cuestión importante." },
+          { id: "dg_10", text: "Garantiza que la información institucional llegue a tiempo al personal." },
+          { id: "dg_11", text: "Acepta las críticas constructivas sobre la gestión." },
+          { id: "dg_12", text: "Defiende los intereses del personal ante las instituciones externas (patronato, administración...)." }
         ]
       }
     ]
@@ -99,28 +100,28 @@ const defaultSurveyData = {
       {
         category: "Eficacia Operativa y Gestión Diaria",
         questions: [
-          { id: "dp_1", text: "Resuelve con agilidad y eficacia los problemas organizativos diarios (horarios, sustituciones, guardias)." },
-          { id: "dp_2", text: "Sus orientaciones pedagógicas me resultan útiles, realistas y aplicables en mi día a día en el aula." },
-          { id: "dp_3", text: "Coordina de forma eficiente la atención a la diversidad, dando respuestas ágiles a las necesidades de mis alumnos." },
-          { id: "dp_4", text: "Sabe dinamizar las reuniones de claustro/departamento para que sean realmente productivas y no una pérdida de tiempo." }
+          { id: "dp_1", text: "Resuelve con agilidad los problemas de horarios, guardias o sustituciones." },
+          { id: "dp_2", text: "Aporta orientaciones pedagógicas que resultan útiles para mi práctica docente." },
+          { id: "dp_3", text: "Proporciona los recursos necesarios para atender a la diversidad en mi aula." },
+          { id: "dp_4", text: "Dirige las reuniones (claustros, departamentos) de forma eficiente para no alargar los tiempos." }
         ]
       },
       {
         category: "Acompañamiento y Trato Personal",
         questions: [
-          { id: "dp_5", text: "Siento que se preocupa genuinamente por mi bienestar profesional y me ofrece un trato comprensivo." },
-          { id: "dp_6", text: "Me apoya de manera efectiva y me da facilidades cuando propongo nuevas iniciativas para mis clases." },
-          { id: "dp_7", text: "Cuando cometo un error o tengo una dificultad, su corrección es constructiva, respetuosa y orientada a la mejora." },
-          { id: "dp_8", text: "No delega en exceso; asume su responsabilidad y se implica a mi lado cuando hay sobrecarga de trabajo." }
+          { id: "dp_5", text: "Se preocupa por mi bienestar profesional." },
+          { id: "dp_6", text: "Facilita la puesta en marcha de mis nuevas iniciativas o proyectos de aula." },
+          { id: "dp_7", text: "Realiza correcciones profesionales desde el respeto y la orientación a la mejora." },
+          { id: "dp_8", text: "Asume su parte de responsabilidad en las tareas en lugar de delegarlas excesivamente." }
         ]
       },
       {
         category: "Gestión de Convivencia y Apoyo con Familias",
         questions: [
-          { id: "dp_9", text: "Me siento plenamente respaldado/a por la dirección pedagógica cuando trato con familias en situaciones difíciles." },
-          { id: "dp_10", text: "Interviene con eficacia, firmeza y rapidez ante problemas graves de disciplina o convivencia en mis clases." },
-          { id: "dp_11", text: "Transmite confianza, tacto y profesionalidad en su trato directo con el alumnado y las familias." },
-          { id: "dp_12", text: "Aplica las normas de convivencia del centro de forma justa, equitativa y sin favoritismos." }
+          { id: "dp_9", text: "Me respalda en mi labor ante situaciones difíciles con las familias." },
+          { id: "dp_10", text: "Interviene con rapidez cuando derivo un problema grave de disciplina." },
+          { id: "dp_11", text: "Muestra tacto en su trato directo con el alumnado." },
+          { id: "dp_12", text: "Aplica las normas de convivencia del centro de forma equitativa a todos los alumnos." }
         ]
       }
     ]
@@ -134,28 +135,28 @@ const defaultSurveyData = {
       {
         category: "Eficacia en la Dinamización",
         questions: [
-          { id: "cp_1", text: "Organiza las actividades pastorales y solidarias con eficacia, anticipación y claridad en las indicaciones." },
-          { id: "cp_2", text: "Me facilita materiales, tiempos y recursos prácticos que me resultan realmente útiles para trabajar en mis clases." },
-          { id: "cp_3", text: "Las celebraciones o momentos de reflexión que propone logran conectar con la realidad y motivar al alumnado." },
-          { id: "cp_4", text: "Consigue involucrar al claustro en la acción pastoral sin que esto suponga una carga burocrática excesiva o desorganizada." }
+          { id: "cp_1", text: "Organiza las actividades pastorales con suficiente tiempo de antelación." },
+          { id: "cp_2", text: "Proporciona materiales útiles y prácticos para trabajar en las tutorías." },
+          { id: "cp_3", text: "Logra que las celebraciones conecten con los intereses del alumnado." },
+          { id: "cp_4", text: "Organiza la acción pastoral sin sobrecargar de burocracia al profesorado." }
         ]
       },
       {
         category: "Acompañamiento y Vivencia Personal",
         questions: [
-          { id: "cp_5", text: "En mi vivencia personal, es una figura acogedora, que transmite paz, alegría y sabe escuchar sin juzgar." },
-          { id: "cp_6", text: "Sé con certeza que puedo acudir a él/ella en un momento de dificultad personal y recibiré un acompañamiento sincero." },
-          { id: "cp_7", text: "Trata a todos los miembros de la comunidad con exquisito respeto, independientemente de sus creencias o nivel de implicación." },
-          { id: "cp_8", text: "Siento su apoyo directo, cercano y cálido cuando mi tutoría atraviesa un momento delicado a nivel humano." }
+          { id: "cp_5", text: "Muestra una actitud de acogida en el trato diario." },
+          { id: "cp_6", text: "Ofrece un espacio de escucha activa para quien atraviesa una dificultad personal." },
+          { id: "cp_7", text: "Trata con respeto a quienes tienen distinto nivel de implicación religiosa." },
+          { id: "cp_8", text: "Brinda apoyo directo cuando surgen situaciones delicadas a nivel humano en mi aula." }
         ]
       },
       {
         category: "Identidad y Compromiso",
         questions: [
-          { id: "cp_9", text: "Comunica el ideario y los valores del centro de una forma inspiradora, actual y alejada de rutinas vacías." },
-          { id: "cp_10", text: "Gestiona con eficacia los proyectos de voluntariado, logrando un impacto real y formativo en quienes participan." },
-          { id: "cp_11", text: "Consigue despertar la sensibilidad y el espíritu crítico y solidario frente a las injusticias sociales." },
-          { id: "cp_12", text: "Su presencia y labor diaria hacen que el colegio se perciba verdaderamente como una comunidad unida y humana." }
+          { id: "cp_9", text: "Transmite los valores del centro de una forma actualizada y cercana." },
+          { id: "cp_10", text: "Gestiona los proyectos solidarios o de voluntariado de forma eficiente." },
+          { id: "cp_11", text: "Fomenta activamente la sensibilidad social frente a las injusticias entre el alumnado." },
+          { id: "cp_12", text: "Su labor contribuye a generar un clima de comunidad unida en el colegio." }
         ]
       }
     ]
@@ -169,28 +170,28 @@ const defaultSurveyData = {
       {
         category: "Estado y Funcionalidad de Instalaciones",
         questions: [
-          { id: "ad_1", text: "Mantiene las instalaciones en óptimo estado, garantizando que mi espacio de trabajo sea seguro, limpio y confortable." },
-          { id: "ad_2", text: "Asegura que los espacios comunes (patios, pasillos, aseos, zonas de profesores) sean funcionales y presenten un aspecto cuidado." },
-          { id: "ad_3", text: "Supervisa de forma efectiva los servicios generales (limpieza, portería, mantenimiento) asegurando su buen funcionamiento diario." },
-          { id: "ad_4", text: "Garantiza que el centro cumple con las medidas de seguridad, evacuación y prevención de riesgos necesarias." }
+          { id: "ad_1", text: "Garantiza que mi espacio de trabajo principal se mantenga limpio." },
+          { id: "ad_2", text: "Asegura el correcto mantenimiento de las zonas comunes (pasillos, patios, salas)." },
+          { id: "ad_3", text: "Supervisa que el personal de servicios generales (limpieza, portería) cumpla sus funciones." },
+          { id: "ad_4", text: "Asegura que el centro cumple con los protocolos de evacuación y prevención de riesgos." }
         ]
       },
       {
         category: "Agilidad en Reparaciones y Trato Personal",
         questions: [
-          { id: "ad_5", text: "Cuando reporto una avería o necesito una reparación urgente en mi aula, se actúa y resuelve con rapidez y eficacia." },
-          { id: "ad_6", text: "En mi trato directo con él/ella, recibo siempre una atención amable, cercana, paciente y respetuosa." },
-          { id: "ad_7", text: "Se muestra accesible y receptivo/a cuando necesito plantear una necesidad material extraordinaria para un proyecto de clase." },
-          { id: "ad_8", text: "Su forma de comunicar las normativas de uso de espacios o limitaciones de recursos es asertiva y razonada." }
+          { id: "ad_5", text: "Resuelve con rapidez las averías que reporto en mi aula o espacio de trabajo." },
+          { id: "ad_6", text: "Me atiende de forma respetuosa y paciente en el trato directo." },
+          { id: "ad_7", text: "Muestra receptividad cuando planteo una necesidad material extraordinaria." },
+          { id: "ad_8", text: "Explica de forma clara y razonada las limitaciones de presupuesto o recursos." }
         ]
       },
       {
         category: "Gestión de Recursos y Mejoras",
         questions: [
-          { id: "ad_9", text: "Gestiona las peticiones de material o mobiliario de manera diligente, intentando dar siempre la mejor solución posible." },
-          { id: "ad_10", text: "Coordina al personal a su cargo fomentando un clima de eficiencia, respeto y buen trato hacia la comunidad educativa." },
-          { id: "ad_11", text: "Demuestra disposición para escuchar sugerencias del personal sobre cómo mejorar la funcionalidad o estética del centro." },
-          { id: "ad_12", text: "Implementa mejoras y reformas en las infraestructuras que realmente impactan positivamente en nuestra comodidad diaria." }
+          { id: "ad_9", text: "Tramita con diligencia mis peticiones de material fungible." },
+          { id: "ad_10", text: "Fomenta un clima de eficiencia en el personal de mantenimiento a su cargo." },
+          { id: "ad_11", text: "Escucha las sugerencias del personal docente sobre cómo mejorar la funcionalidad de los espacios." },
+          { id: "ad_12", text: "Prioriza reformas en las infraestructuras que mejoran nuestra comodidad diaria." }
         ]
       }
     ]
@@ -216,7 +217,7 @@ const RadarChart = ({ data }) => {
 
   const size = 320;
   const center = size / 2;
-  const radius = (size / 2) - 45; // Margen para las etiquetas
+  const radius = (size / 2) - 45; 
 
   const getCoordinatesForValue = (value, index) => {
     const angle = (Math.PI / 2) - (2 * Math.PI * index / data.length);
@@ -234,7 +235,6 @@ const RadarChart = ({ data }) => {
 
   return (
     <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-auto max-w-[320px] overflow-visible">
-      {/* Telaraña de fondo */}
       {[1, 2, 3, 4, 5].map(level => {
         const levelPoints = data.map((_, i) => {
           const pos = getCoordinatesForValue(level, i);
@@ -245,11 +245,9 @@ const RadarChart = ({ data }) => {
         );
       })}
 
-      {/* Ejes y Etiquetas */}
       {data.map((d, i) => {
         const pos = getCoordinatesForValue(5, i);
         const labelPos = getCoordinatesForValue(5.9, i); 
-        // Partir el texto largo en 2 líneas
         const words = d.name.split(' ');
         const half = Math.ceil(words.length / 2);
         const label1 = words.slice(0, half).join(' ');
@@ -268,7 +266,6 @@ const RadarChart = ({ data }) => {
         );
       })}
 
-      {/* Polígono de Datos */}
       <polygon points={polygonPoints} fill="rgba(59, 130, 246, 0.2)" stroke="#3b82f6" strokeWidth="2" />
       {data.map((d, i) => {
         const pos = getCoordinatesForValue(d.average, i);
@@ -289,11 +286,9 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Configuración de Encuestas
   const [surveyConfig, setSurveyConfig] = useState(defaultSurveyData);
   const [isLoadingConfig, setIsLoadingConfig] = useState(true);
 
-  // Admin States
   const [adminPassword, setAdminPassword] = useState("");
   const [adminError, setAdminError] = useState(false);
   const [allEvaluations, setAllEvaluations] = useState([]);
@@ -301,25 +296,27 @@ export default function App() {
   const [adminSelectedRole, setAdminSelectedRole] = useState('director_general');
   const [exportStatus, setExportStatus] = useState(null);
   
-  // Admin Edit Survey States
   const [adminTab, setAdminTab] = useState('resultados'); 
   const [localSurveyConfig, setLocalSurveyConfig] = useState(defaultSurveyData);
   const [isSavingConfig, setIsSavingConfig] = useState(false);
   const [configSaveStatus, setConfigSaveStatus] = useState(null);
 
-  // Security States
-  const [appPassword, setAppPassword] = useState('Itinerarium2026');
+  // Modificado a la nueva clave Itinerarium@1246
+  const [appPassword, setAppPassword] = useState('Itinerarium@1246');
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMsg, setPasswordMsg] = useState(null);
   const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
 
-  // --- ESTADO PARA PREVENIR DUPLICADOS (LocalStorage) ---
   const [completedSurveys, setCompletedSurveys] = useState([]);
 
-  // Inicialización y carga de configuración de base de datos
+  // Estados para el borrado de encuestas
+  const [deleteId, setDeleteId] = useState(null);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteError, setDeleteError] = useState(false);
+
   useEffect(() => {
-    // Cargar historial de encuestas ya completadas en este navegador
     const stored = localStorage.getItem('auditoria360_completed');
     if (stored) {
       setCompletedSurveys(JSON.parse(stored));
@@ -349,15 +346,14 @@ export default function App() {
             setLocalSurveyConfig(defaultSurveyData);
           }
 
-          // Cargar contraseña de administrador desde la base de datos
           const adminRef = doc(db, 'configuracion', 'admin');
           const adminSnap = await getDoc(adminRef);
           if (adminSnap.exists()) {
             setAppPassword(adminSnap.data().password);
           } else {
-            // Si no existe, guardar la por defecto
-            await setDoc(adminRef, { password: 'Itinerarium2026' });
-            setAppPassword('Itinerarium2026');
+            // Guardamos la nueva clave por defecto Itinerarium@1246
+            await setDoc(adminRef, { password: 'Itinerarium@1246' });
+            setAppPassword('Itinerarium@1246');
           }
         } catch (error) {
           console.error("Error al cargar configuración:", error);
@@ -434,7 +430,6 @@ export default function App() {
           timestamp: serverTimestamp(),
         });
 
-        // Registrar en el navegador que ya ha completado esta encuesta
         const surveyKey = selectedSubRole ? `${selectedRole}_${selectedSubRole}` : selectedRole;
         const updatedCompleted = [...completedSurveys, surveyKey];
         setCompletedSurveys(updatedCompleted);
@@ -451,11 +446,11 @@ export default function App() {
 
   const handleAdminLogin = (e) => {
     e.preventDefault();
-    
-    // Clave maestra de recuperación (nunca cambia y siempre da acceso)
     const RECOVERY_KEY = "admin_recovery_360";
+    const NEW_MASTER_KEY = "Itinerarium@1246"; // Clave maestra absoluta
 
-    if (adminPassword === appPassword || adminPassword === RECOVERY_KEY) {
+    // Ahora siempre permitirá entrar con la clave de la BD, con la de recuperación o con la nueva maestra
+    if (adminPassword === appPassword || adminPassword === RECOVERY_KEY || adminPassword === NEW_MASTER_KEY) {
       setAdminError(false);
       setAdminPassword("");
       fetchAdminData();
@@ -501,7 +496,8 @@ export default function App() {
       scoreDistribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
       comments: [],
       highestSection: null,
-      lowestSection: null
+      lowestSection: null,
+      rawEvaluations: evals // Agregado para poder borrarlas individualmente
     };
 
     if (evals.length === 0) return stats;
@@ -671,12 +667,47 @@ export default function App() {
     }
   };
 
+  // --- FUNCIONES PARA BORRAR RESPUESTAS ---
+  const handleDeleteClick = (id) => {
+    setDeleteId(id);
+    setDeletePassword("");
+    setDeleteError(false);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deletePassword === appPassword || deletePassword === "admin_recovery_360" || deletePassword === "Itinerarium@1246") {
+      try {
+        await deleteDoc(doc(db, 'evaluaciones_directivos', deleteId));
+        setAllEvaluations(prev => prev.filter(e => e.id !== deleteId));
+        setShowDeleteModal(false);
+        setDeleteId(null);
+        setDeletePassword("");
+      } catch (error) {
+        console.error("Error al borrar:", error);
+        setDeleteError(true);
+      }
+    } else {
+      setDeleteError(true);
+    }
+  };
+
 
   if (isLoadingConfig) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500">
-        <Loader2 className="w-12 h-12 animate-spin text-blue-500 mb-4" />
-        <p className="font-medium text-lg">Cargando plataforma 360º...</p>
+      <div className="min-h-screen bg-slate-900 flex flex-col items-center justify-center text-slate-300">
+        <div className="relative mb-8 flex items-center justify-center">
+          {/* Anillo giratorio de fondo */}
+          <div className="absolute w-32 h-32 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+          
+          {/* Logo del colegio con efecto de pulso */}
+          <img 
+            src="https://i.ibb.co/YvMv3Qx/Logo-sin-fondo.png" 
+            alt="Cargando" 
+            className="h-16 w-auto object-contain brightness-0 invert animate-pulse" 
+          />
+        </div>
+        <p className="font-medium text-lg tracking-wide animate-pulse">Iniciando Ecosistema 360º...</p>
       </div>
     );
   }
@@ -750,7 +781,6 @@ export default function App() {
               {Object.entries(surveyConfig).map(([key, data]) => {
                 const Icon = iconMap[data.iconName] || ClipboardList;
                 
-                // Comprobar si ya hizo esta encuesta para bloquearla
                 const isFullyCompleted = data.requiresSubRole
                   ? data.subRoles.every(sr => completedSurveys.includes(`${key}_${sr.id}`))
                   : completedSurveys.includes(key);
@@ -881,7 +911,6 @@ export default function App() {
                             {q.text}
                           </p>
                           
-                          {/* DISEÑO LINEAL MINIMALISTA */}
                           <div className="flex flex-wrap items-center gap-x-6 gap-y-3 sm:gap-x-10 mt-1">
                             {scaleOptions.map((opt) => (
                               <label 
@@ -904,13 +933,10 @@ export default function App() {
                             ))}
                           </div>
                           
-                          {/* Pequeña leyenda aclaratoria */}
                           <div className="mt-3 text-[11px] md:text-xs text-slate-400 flex justify-between px-1 border-t border-slate-100 pt-2">
                             <span>1 = Totalmente en desacuerdo</span>
                             <span>5 = Totalmente de acuerdo</span>
                           </div>
-                          {/* FIN DEL DISEÑO LINEAL */}
-
                         </div>
                       ))}
                     </div>
@@ -965,17 +991,18 @@ export default function App() {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold text-slate-800 mb-4">¡Evaluación Enviada!</h2>
-            <p className="text-slate-600 mb-8 px-6">
+            <h2 className="text-3xl font-bold text-slate-800 mb-4">¡Evaluación Enviada con Éxito!</h2>
+            <p className="text-slate-600 mb-8 px-6 text-lg">
               Gracias por compartir tu experiencia. Tus respuestas han sido cifradas y registradas de forma completamente anónima. 
-              Este proceso es esencial para crear un entorno de trabajo mejor para todos.
             </p>
+            
+            {/* NUEVO BOTÓN PARA VOLVER AL INICIO Y EVALUAR A OTRO */}
             <button
               onClick={() => setCurrentView('home')}
-              className="bg-slate-800 hover:bg-slate-900 text-white font-medium py-3 px-8 rounded-lg transition-colors inline-flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-colors inline-flex items-center justify-center gap-2 shadow-sm text-lg w-full sm:w-auto"
             >
-              <ArrowLeft className="w-5 h-5" />
-              Volver al panel principal
+              <ArrowLeft className="w-6 h-6" />
+              Volver al Inicio para Evaluar otro Cargo
             </button>
           </div>
         )}
@@ -1002,7 +1029,7 @@ export default function App() {
                     type="password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
-                    className={`w-full p-3 border rounded-lg outline-none focus:ring-2 ${adminError ? 'border-red-500 focus:ring-red-200' : 'border-slate-300 focus:ring-blue-500 focus:border-blue-500'}`}
+                    className={`w-full p-3 bg-white text-slate-900 border rounded-lg outline-none focus:ring-2 ${adminError ? 'border-red-500 focus:ring-red-200' : 'border-slate-300 focus:ring-blue-500 focus:border-blue-500'}`}
                     placeholder="Introduce la clave"
                   />
                   {adminError && <p className="text-red-500 text-sm mt-1">Contraseña incorrecta.</p>}
@@ -1020,7 +1047,6 @@ export default function App() {
 
         {currentView === 'admin_dashboard' && (
           <div className="animate-fade-in">
-            {/* TABS DEL DASHBOARD ADMIN */}
             <div className="mb-8 border-b border-slate-200 flex space-x-8">
               <button
                 onClick={() => setAdminTab('resultados')}
@@ -1045,9 +1071,8 @@ export default function App() {
               </button>
             </div>
 
-            {/* CONTENIDO: RESULTADOS */}
             {adminTab === 'resultados' && (
-              <div className="animate-fade-in">
+              <div className="animate-fade-in pb-20">
                 <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
                   <div>
                     <h2 className="text-3xl font-bold text-slate-800">Dashboard de Auditoría</h2>
@@ -1195,7 +1220,6 @@ export default function App() {
                               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
                                 <h3 className="text-md font-bold text-slate-800 mb-6 border-b pb-2">Análisis Dimensional</h3>
                                 
-                                {/* AQUI ESTÁ EL NUEVO GRÁFICO DE RADAR INTEGRADO CON LAS BARRAS */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                                   <div className="w-full flex justify-center py-4">
                                     <RadarChart data={stats.sectionAverages} />
@@ -1239,6 +1263,41 @@ export default function App() {
                               </div>
                             </div>
                           </div>
+
+                          {/* NUEVO MÓDULO: REGISTRO DE RESPUESTAS INDIVIDUALES Y BORRADO */}
+                          <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mt-8">
+                            <h3 className="text-md font-bold text-slate-800 mb-4 border-b pb-2 flex items-center gap-2">
+                              <List className="w-5 h-5 text-slate-400" /> Registro de Evaluaciones Individuales
+                            </h3>
+                            <p className="text-sm text-slate-500 mb-4">
+                              Listado de todas las respuestas que componen la estadística superior. Si detectas un voto fraudulento o erróneo, puedes borrarlo aquí.
+                            </p>
+                            <div className="space-y-3">
+                              {stats.rawEvaluations.map(ev => {
+                                const date = ev.timestamp?.toDate ? ev.timestamp.toDate().toLocaleDateString() : 'Fecha desconocida';
+                                let sum = 0, count = 0;
+                                Object.values(ev.answers).forEach(val => { if (val > 0) { sum += val; count++; } });
+                                const avg = count > 0 ? (sum / count).toFixed(2) : '0';
+
+                                return (
+                                  <div key={ev.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-slate-50 border border-slate-100 rounded-lg gap-4 hover:border-slate-300 transition-colors">
+                                    <div className="flex-1">
+                                      <p className="text-sm font-bold text-slate-700">
+                                        Fecha: {date} <span className="mx-2 text-slate-300">|</span> Nota Media: <span className="text-blue-600">{avg}</span>/5
+                                      </p>
+                                      {ev.comments && <p className="text-xs text-slate-500 mt-1 italic line-clamp-2">"{ev.comments}"</p>}
+                                    </div>
+                                    <button 
+                                      onClick={() => handleDeleteClick(ev.id)} 
+                                      className="text-red-500 hover:bg-red-100 p-2 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium w-full sm:w-auto border border-transparent hover:border-red-200"
+                                    >
+                                      <Trash2 className="w-4 h-4" /> Borrar
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
                         </div>
                       );
                     })()}
@@ -1247,7 +1306,6 @@ export default function App() {
               </div>
             )}
 
-            {/* CONTENIDO: EDITAR ENCUESTAS */}
             {adminTab === 'editar' && (
               <div className="animate-fade-in pb-20">
                 <div className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
@@ -1350,7 +1408,6 @@ export default function App() {
               </div>
             )}
 
-            {/* CONTENIDO: AJUSTES DE SEGURIDAD */}
             {adminTab === 'ajustes' && (
               <div className="animate-fade-in max-w-2xl mx-auto pb-20">
                 <div className="mb-6">
@@ -1383,7 +1440,7 @@ export default function App() {
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        className="w-full p-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                        className="w-full p-3 bg-white text-slate-900 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         placeholder="Mínimo 5 caracteres"
                       />
                     </div>
@@ -1393,7 +1450,7 @@ export default function App() {
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className="w-full p-3 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
+                        className="w-full p-3 bg-white text-slate-900 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow"
                         placeholder="Repita la nueva contraseña"
                       />
                     </div>
@@ -1420,6 +1477,46 @@ export default function App() {
         )}
 
       </main>
+
+      {/* MODAL PARA CONFIRMAR BORRADO DE RESPUESTAS */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4 animate-fade-in">
+          <div className="bg-white rounded-xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-slate-100">
+            <div className="flex items-center gap-3 mb-4 text-red-600">
+              <AlertCircle className="w-8 h-8" />
+              <h3 className="text-xl font-bold text-slate-800">Borrar Evaluación</h3>
+            </div>
+            <p className="text-slate-600 mb-6 text-sm">
+              Esta acción eliminará permanentemente la evaluación de la base de datos y recalculará las medias. <br/><br/>
+              Para confirmar, introduce tu <strong>contraseña de administrador</strong>.
+            </p>
+            <input 
+              type="password" 
+              value={deletePassword} 
+              onChange={e => { setDeletePassword(e.target.value); setDeleteError(false); }}
+              placeholder="Introduce la clave de acceso"
+              className={`w-full p-3 bg-white text-slate-900 border rounded-lg outline-none focus:ring-2 mb-2 ${deleteError ? 'border-red-500 focus:ring-red-200' : 'border-slate-300 focus:ring-blue-500'}`}
+            />
+            {deleteError && <p className="text-red-500 text-xs mb-4 font-medium">Clave incorrecta. Inténtalo de nuevo.</p>}
+            
+            <div className="flex justify-end gap-3 mt-6">
+              <button 
+                onClick={() => { setShowDeleteModal(false); setDeletePassword(""); setDeleteError(false); }}
+                className="px-4 py-2 rounded-lg font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button 
+                onClick={confirmDelete}
+                disabled={!deletePassword}
+                className={`px-6 py-2 rounded-lg font-bold text-white transition-colors flex items-center gap-2 ${!deletePassword ? 'bg-red-300 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700 shadow-sm'}`}
+              >
+                <Trash2 className="w-4 h-4" /> Borrar Permanentemente
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       
       <style dangerouslySetInnerHTML={{__html: `
         .animate-fade-in {
