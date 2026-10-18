@@ -23,10 +23,20 @@ export const HISTORICAL_ACADEMIC_YEARS: AcademicYear[] = [
 ];
 
 export function getHistoricalEvaluations(): EvaluationRecord[] {
-  return (historicalEvals as any[]).map(e => ({
-    ...e,
-    academicYear: '2025_2026'
-  }));
+  return (historicalEvals as any[]).map(e => {
+    const cleanAnswers: Record<string, number | 'NA'> = {};
+    if (e.answers) {
+      Object.entries(e.answers).forEach(([k, v]) => {
+        // En el curso 2025/2026, la opción 0 correspondía al botón 'N/A (No aplica)'
+        cleanAnswers[k] = v === 0 ? 'NA' : (v as number);
+      });
+    }
+    return {
+      ...e,
+      answers: cleanAnswers,
+      academicYear: '2025_2026'
+    };
+  });
 }
 
 export function getHistoricalSurveyConfig(): SurveyConfigMap {

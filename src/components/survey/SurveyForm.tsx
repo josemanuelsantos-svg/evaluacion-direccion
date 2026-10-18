@@ -15,18 +15,19 @@ interface SurveyFormProps {
   roleKey: string;
   subRoleId?: string | null;
   roleConfig: RoleSurveyConfig;
-  onSubmit: (answers: Record<string, number>, comments: string) => Promise<void>;
+  onSubmit: (answers: Record<string, number | 'NA'>, comments: string) => Promise<void>;
   onBack: () => void;
   isSubmitting: boolean;
 }
 
-const scaleOptions = [
+const scaleOptions: Array<{ value: number | 'NA'; label: string; short: string; isNA?: boolean }> = [
+  { value: 0, label: "0 (Calificación nula / 0)", short: "0" },
   { value: 1, label: "Totalmente en desacuerdo", short: "1" },
   { value: 2, label: "En desacuerdo", short: "2" },
   { value: 3, label: "Neutral / Aceptable", short: "3" },
   { value: 4, label: "De acuerdo", short: "4" },
   { value: 5, label: "Totalmente de acuerdo", short: "5" },
-  { value: 0, label: "N/A (Sin experiencia directa)", short: "N/A" }
+  { value: 'NA', label: "No aplica (Sin experiencia directa)", short: "No aplica", isNA: true }
 ];
 
 export const SurveyForm: React.FC<SurveyFormProps> = ({
@@ -37,7 +38,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   onBack,
   isSubmitting
 }) => {
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [answers, setAnswers] = useState<Record<string, number | 'NA'>>({});
   const [comments, setComments] = useState("");
   const [showValidation, setShowValidation] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -53,7 +54,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   const progressPercent = Math.round((answeredCount / totalQuestions) * 100);
   const unansweredCount = totalQuestions - answeredCount;
 
-  const handleAnswerChange = (questionId: string, value: number) => {
+  const handleAnswerChange = (questionId: string, value: number | 'NA') => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
@@ -170,40 +171,43 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                         {q.text}
                       </p>
                       
-                      {/* SELECTOR SEGMENTADO MODERNO */}
-                      <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+                      {/* SELECTOR SEGMENTADO MODERNO (0 a 5 + No aplica) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
                         {scaleOptions.map((opt) => {
                           const isSelected = currentVal === opt.value;
-                          const isNA = opt.value === 0;
+                          const isNA = opt.isNA;
 
                           return (
                             <button
                               type="button"
-                              key={opt.value}
+                              key={String(opt.value)}
                               onClick={() => handleAnswerChange(q.id, opt.value)}
                               className={`py-3 px-2 rounded-xl text-center border font-bold text-xs transition-all cursor-pointer flex flex-col items-center justify-center gap-1 ${
                                 isSelected
                                   ? isNA
-                                    ? 'bg-slate-800 text-white border-slate-800 shadow-md scale-102'
-                                    : `${theme.headerBg} text-white border-transparent shadow-md scale-102`
-                                  : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
+                                    ? 'bg-slate-800 text-white border-slate-800 shadow-md scale-102 ring-2 ring-slate-400'
+                                    : opt.value === 0
+                                      ? 'bg-rose-700 text-white border-rose-700 shadow-md scale-102'
+                                      : `${theme.headerBg} text-white border-transparent shadow-md scale-102`
+                                  : isNA
+                                    ? 'bg-slate-50 text-slate-600 border-slate-300 hover:border-slate-400 hover:bg-slate-100'
+                                    : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
                               }`}
                             >
-                              <span className="text-base font-black">
+                              <span className={`text-base font-black ${isNA ? 'text-xs uppercase tracking-wider' : ''}`}>
                                 {opt.short}
                               </span>
                               <span className={`text-[10px] line-clamp-1 leading-tight font-medium ${isSelected ? 'text-white/90' : 'text-slate-400'}`}>
-                                {opt.label.split(' ')[0]}
+                                {isNA ? 'Sin experiencia' : opt.label.split(' ')[0]}
                               </span>
                             </button>
                           );
                         })}
                       </div>
                       
-                      <div className="mt-3.5 text-[11px] text-slate-400 flex justify-between px-1 border-t border-slate-200/60 pt-2 font-medium">
-                        <span>1 = Totalmente en desacuerdo</span>
-                        <span>5 = Totalmente de acuerdo</span>
-                        <span className="hidden sm:inline">N/A = Sin experiencia directa</span>
+                      <div className="mt-3.5 text-[11px] text-slate-500 flex flex-wrap justify-between gap-2 px-1 border-t border-slate-200/60 pt-2 font-medium">
+                        <span>0 a 5 = Escala numérica (0 computa como 0)</span>
+                        <span className="font-semibold text-slate-700">No aplica = Excluido de la media (ni sube ni baja)</span>
                       </div>
                     </div>
                   );

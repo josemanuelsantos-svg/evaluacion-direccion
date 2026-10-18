@@ -179,7 +179,7 @@ export default function App() {
     setCurrentView('survey');
   };
 
-  const handleSubmitSurvey = async (answers: Record<string, number>, comments: string) => {
+  const handleSubmitSurvey = async (answers: Record<string, number | 'NA'>, comments: string) => {
     if (!selectedRole) return;
     setIsSubmitting(true);
     try {

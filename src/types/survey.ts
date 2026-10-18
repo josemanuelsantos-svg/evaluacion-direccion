@@ -29,7 +29,7 @@ export interface EvaluationRecord {
   id: string;
   roleEvaluated: string;
   subRoleEvaluated?: string | null;
-  answers: Record<string, number>;
+  answers: Record<string, number | 'NA'>;
   comments?: string;
   timestamp?: any; // Firestore Timestamp or ISO string
   academicYear?: string; // e.g., '2025_2026', '2026_2027'
@@ -44,7 +44,7 @@ export interface DimensionAverage {
 export interface QuestionAverage {
   id: string;
   text: string;
-  average: number;
+  average: number | null;
   sampleCount: number;
   distribution: Record<number, number>;
 }

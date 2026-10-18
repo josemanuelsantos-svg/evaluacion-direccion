@@ -276,7 +276,9 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
                       </span>
                       <div className="flex-1">
                         <p className="font-medium text-slate-700 leading-snug">{q.text}</p>
-                        <p className="font-extrabold text-emerald-700 mt-0.5 text-[10px]">Nota: {q.average.toFixed(2)}/5</p>
+                        <p className="font-extrabold text-emerald-700 mt-0.5 text-[10px]">
+                          Nota: {q.average !== null ? `${q.average.toFixed(2)}/5` : 'N/A'}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -297,7 +299,9 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
                       </span>
                       <div className="flex-1">
                         <p className="font-medium text-slate-700 leading-snug">{q.text}</p>
-                        <p className="font-extrabold text-amber-700 mt-0.5 text-[10px]">Nota: {q.average.toFixed(2)}/5</p>
+                        <p className="font-extrabold text-amber-700 mt-0.5 text-[10px]">
+                          Nota: {q.average !== null ? `${q.average.toFixed(2)}/5` : 'N/A'}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -358,11 +362,11 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
                           <div className="w-12 bg-slate-100 h-1.5 rounded-full overflow-hidden hidden sm:block">
                             <div 
                               className={`h-full ${theme.progress}`} 
-                              style={{ width: `${(q.average / 5) * 100}%` }}
+                              style={{ width: `${q.average !== null ? (q.average / 5) * 100 : 0}%` }}
                             />
                           </div>
-                          <span className={`font-black text-[11px] w-8 text-right ${q.average >= 4.0 ? 'text-slate-900' : 'text-amber-700'}`}>
-                            {q.average.toFixed(2)}
+                          <span className={`font-black text-[11px] w-8 text-right ${q.average === null ? 'text-slate-400' : q.average >= 4.0 ? 'text-slate-900' : 'text-amber-700'}`}>
+                            {q.average !== null ? q.average.toFixed(2) : 'N/A'}
                           </span>
                         </div>
                       </div>

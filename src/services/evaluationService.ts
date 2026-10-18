@@ -80,7 +80,7 @@ export function determineAcademicYear(timestamp: any): string {
 export async function submitEvaluationRecord(payload: {
   roleEvaluated: string;
   subRoleEvaluated?: string | null;
-  answers: Record<string, number>;
+  answers: Record<string, number | 'NA'>;
   comments?: string;
   academicYear?: string;
 }): Promise<string> {
@@ -182,20 +182,30 @@ export function calculateRoleStats(
 
       relevantEvals.forEach(e => {
         const val = e.answers ? e.answers[q.id] : undefined;
-        if (typeof val === 'number' && val > 0) {
+        // Si es 'NA' o no respondido: NO se involucra ni sube ni baja la media
+        if (val === 'NA' || (val as unknown) === 'N/A' || (val as unknown) === 'no_aplica' || val === null || val === undefined) {
+          return;
+        }
+
+        // Si es un número (incluido 0): se computa como nota válida
+        if (typeof val === 'number') {
           qSum += val;
           qValid++;
-          qDist[val] = (qDist[val] || 0) + 1;
+          const roundVal = Math.round(val);
+          if (roundVal >= 0 && roundVal <= 5) {
+            qDist[roundVal] = (qDist[roundVal] || 0) + 1;
+            scoreDistribution[roundVal] = (scoreDistribution[roundVal] || 0) + 1;
+          }
 
           sectionSum += val;
           sectionValid++;
           totalScoreSum += val;
           totalValidAnswers++;
-          scoreDistribution[val] = (scoreDistribution[val] || 0) + 1;
         }
       });
 
-      const qAvg = qValid > 0 ? parseFloat((qSum / qValid).toFixed(2)) : 0;
+      // Si no hubo respuestas numéricas (todos N/A), no se le asigna 0, sino null (no evaluable)
+      const qAvg = qValid > 0 ? parseFloat((qSum / qValid).toFixed(2)) : null;
       const qItem: QuestionAverage = {
         id: q.id,
         text: q.text,
@@ -258,8 +268,8 @@ export function calculateRoleStats(
     ? [...sectionAverages].sort((a, b) => a.average - b.average)[0]
     : null;
 
-  const validQuestions = allQuestionAverages.filter(q => q.sampleCount > 0);
-  const sortedQuestions = [...validQuestions].sort((a, b) => b.average - a.average);
+  const validQuestions = allQuestionAverages.filter(q => q.average !== null && q.sampleCount > 0);
+  const sortedQuestions = [...validQuestions].sort((a, b) => (b.average ?? 0) - (a.average ?? 0));
   const topQuestions = sortedQuestions.slice(0, 3);
   const lowestQuestions = [...sortedQuestions].reverse().slice(0, 3);
 
@@ -314,14 +324,15 @@ export function exportStatsToCSV(stats: RoleStats, academicYearLabel: string): v
 
     let sum = 0, count = 0;
     if (ev.answers) {
-      Object.values(ev.answers).forEach(val => {
-        if (typeof val === 'number' && val > 0) {
+      Object.values(ev.answers).forEach((val: any) => {
+        if (val === 'NA' || val === 'N/A' || val === 'no_aplica' || val === null || val === undefined) return;
+        if (typeof val === 'number') {
           sum += val;
           count++;
         }
       });
     }
-    const media = count > 0 ? (sum / count).toFixed(2) : '0';
+    const media = count > 0 ? (sum / count).toFixed(2) : 'N/A';
     const comment = ev.comments ? `"${ev.comments.replace(/"/g, '""').replace(/[\r\n]+/g, ' ')}"` : 'Ninguno';
     csvContent += `"${ev.id}","${date}","${role}","${subRole}",${media},${comment}\n`;
   });
