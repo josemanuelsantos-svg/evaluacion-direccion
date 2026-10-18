@@ -55,6 +55,8 @@ interface AdminDashboardProps {
   isUpdatingPassword: boolean;
   passwordMsg: { type: 'success' | 'error'; text: string } | null;
   appPassword: string;
+  onGlobalResetVoting?: () => Promise<boolean>;
+  isResettingVoting?: boolean;
 }
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({
@@ -69,7 +71,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onUpdatePassword,
   isUpdatingPassword,
   passwordMsg,
-  appPassword
+  appPassword,
+  onGlobalResetVoting,
+  isResettingVoting = false
 }) => {
   const [activeTab, setActiveTab] = useState<'resultados' | 'comparativa' | 'ruta' | 'editor' | 'seguridad'>('resultados');
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2025_2026');
@@ -676,6 +680,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           isUpdatingPassword={isUpdatingPassword}
           passwordMsg={passwordMsg}
           evaluations={evaluations}
+          onGlobalResetVoting={onGlobalResetVoting}
+          isResettingVoting={isResettingVoting}
         />
       )}
 

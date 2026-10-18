@@ -16,13 +16,15 @@ interface RoleSelectorProps {
   completedSurveys: string[];
   onStartSurvey: (roleKey: string) => void;
   academicYearLabel: string;
+  onResetDeviceVoting?: () => void;
 }
 
 export const RoleSelector: React.FC<RoleSelectorProps> = ({
   surveyConfig,
   completedSurveys,
   onStartSurvey,
-  academicYearLabel
+  academicYearLabel,
+  onResetDeviceVoting
 }) => {
   return (
     <div className="animate-fade-in max-w-5xl mx-auto space-y-8">
@@ -142,6 +144,29 @@ export const RoleSelector: React.FC<RoleSelectorProps> = ({
             );
           })}
         </div>
+
+        {/* AVISO Y CONTROL PARA DISPOSITIVOS COMPARTIDOS EN EL CENTRO */}
+        {completedSurveys.length > 0 && onResetDeviceVoting && (
+          <div className="mt-6 bg-slate-100 border border-slate-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600 animate-fade-in">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+              <span>
+                Este equipo tiene <strong>{completedSurveys.length}</strong> cargo/s evaluado/s. ¿Estás en un ordenador compartido (ej. sala de profesores)?
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm("¿Deseas habilitar este dispositivo para que otro docente pueda evaluar?\n\nTus valoraciones previas ya están registradas y custodiadas con anonimato en la base de datos.")) {
+                  onResetDeviceVoting();
+                }
+              }}
+              className="px-4 py-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-800 font-bold rounded-xl shadow-2xs transition-all shrink-0 cursor-pointer flex items-center gap-1.5"
+            >
+              <span>🔄 Habilitar nuevo voto en este equipo</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

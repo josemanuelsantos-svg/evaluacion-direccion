@@ -58,18 +58,34 @@ export default function App() {
   const [reportRoleKey, setReportRoleKey] = useState<string>('director_general');
   const [reportAcademicYear, setReportAcademicYear] = useState<string>('2025_2026');
 
+  // Control de reseteo de votaciones
+  const [isResettingVoting, setIsResettingVoting] = useState(false);
+
   // Curso escolar activo para las encuestas actuales
   const activeAcademicYear: AcademicYear = HISTORICAL_ACADEMIC_YEARS.find(y => y.isCurrent) || HISTORICAL_ACADEMIC_YEARS[1];
+  const completionStorageKey = `auditoria360_completed_${activeAcademicYear.id}`;
 
   useEffect(() => {
-    // Restaurar encuestas completadas localmente
-    const stored = localStorage.getItem('auditoria360_completed');
+    // Migración y saneamiento: Si existe la clave genérica 'auditoria360_completed' de la campaña anterior,
+    // la asignamos al curso 2025_2026 y limpiamos para que el curso actual (2026_2027) empiece 100% abierto.
+    const legacyStored = localStorage.getItem('auditoria360_completed');
+    if (legacyStored) {
+      if (!localStorage.getItem('auditoria360_completed_2025_2026')) {
+        localStorage.setItem('auditoria360_completed_2025_2026', legacyStored);
+      }
+      localStorage.removeItem('auditoria360_completed');
+    }
+
+    // Cargar encuestas completadas para el curso escolar activo
+    const stored = localStorage.getItem(completionStorageKey);
     if (stored) {
       try {
         setCompletedSurveys(JSON.parse(stored));
       } catch (e) {
         setCompletedSurveys([]);
       }
+    } else {
+      setCompletedSurveys([]);
     }
 
     ensureAnonymousAuth();
@@ -97,6 +113,27 @@ export default function App() {
             await setDoc(adminRef, { password: 'Itinerarium@1246' });
             setAppPassword('Itinerarium@1246');
           }
+
+          // Comprobar sesión de votación en la nube para reaperturas de campaña
+          const campanaRef = doc(db, 'configuracion', 'campana');
+          const campanaSnap = await getDoc(campanaRef);
+          if (campanaSnap.exists()) {
+            const serverSessionId = campanaSnap.data().votingSessionId;
+            const localSessionId = localStorage.getItem('auditoria360_voting_session');
+            if (serverSessionId && serverSessionId !== localSessionId) {
+              // El administrador ha emitido un reseteo o reapertura de votaciones
+              localStorage.removeItem(completionStorageKey);
+              localStorage.setItem('auditoria360_voting_session', serverSessionId);
+              setCompletedSurveys([]);
+            }
+          } else {
+            const initialSessionId = `campana_${activeAcademicYear.id}_v1`;
+            await setDoc(campanaRef, {
+              votingSessionId: initialSessionId,
+              lastResetAt: new Date().toISOString()
+            });
+            localStorage.setItem('auditoria360_voting_session', initialSessionId);
+          }
         } catch (error) {
           console.error("Error al cargar configuración inicial:", error);
           setSurveyConfig(getHistoricalSurveyConfig());
@@ -112,7 +149,7 @@ export default function App() {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, [activeAcademicYear.id, completionStorageKey]);
 
   const loadEvaluations = async () => {
     setIsLoadingData(true);
@@ -157,7 +194,7 @@ export default function App() {
       const surveyKey = selectedSubRole ? `${selectedRole}_${selectedSubRole}` : selectedRole;
       const updated = [...completedSurveys, surveyKey];
       setCompletedSurveys(updated);
-      localStorage.setItem('auditoria360_completed', JSON.stringify(updated));
+      localStorage.setItem(completionStorageKey, JSON.stringify(updated));
 
       await loadEvaluations();
       setCurrentView('success');
@@ -167,6 +204,32 @@ export default function App() {
     } finally {
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
+  const handleResetDeviceVoting = () => {
+    localStorage.removeItem(completionStorageKey);
+    setCompletedSurveys([]);
+  };
+
+  const handleGlobalResetVoting = async (): Promise<boolean> => {
+    setIsResettingVoting(true);
+    try {
+      const newSessionId = `campana_${activeAcademicYear.id}_${Date.now()}`;
+      await setDoc(doc(db, 'configuracion', 'campana'), {
+        votingSessionId: newSessionId,
+        lastResetAt: new Date().toISOString()
+      }, { merge: true });
+
+      localStorage.removeItem(completionStorageKey);
+      localStorage.setItem('auditoria360_voting_session', newSessionId);
+      setCompletedSurveys([]);
+      return true;
+    } catch (e) {
+      console.error('Error al resetear votaciones globalmente:', e);
+      return false;
+    } finally {
+      setIsResettingVoting(false);
     }
   };
 
@@ -299,6 +362,7 @@ export default function App() {
             completedSurveys={completedSurveys}
             onStartSurvey={handleStartSurvey}
             academicYearLabel={activeAcademicYear.label}
+            onResetDeviceVoting={handleResetDeviceVoting}
           />
         )}
 
@@ -376,6 +440,8 @@ export default function App() {
             isUpdatingPassword={isUpdatingPassword}
             passwordMsg={passwordMsg}
             appPassword={appPassword}
+            onGlobalResetVoting={handleGlobalResetVoting}
+            isResettingVoting={isResettingVoting}
           />
         )}
       </main>
