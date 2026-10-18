@@ -34,6 +34,8 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
   selectedRoleKey,
   onSelectRole
 }) => {
+  const [showAllResponses, setShowAllResponses] = React.useState<boolean>(false);
+
   const currentDate = new Date().toLocaleDateString('es-ES', {
     day: 'numeric',
     month: 'long',
@@ -45,6 +47,7 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
   };
 
   const totalVotes = Object.values(stats.scoreDistribution).reduce((a, b) => a + b, 0);
+  const displayedComments = showAllResponses ? stats.comments : stats.comments.slice(0, 10);
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4 md:px-8 print:p-0 print:bg-white text-slate-800">
@@ -77,13 +80,41 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* SELECTOR DE MODO DE RESPUESTAS */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button
+              type="button"
+              onClick={() => setShowAllResponses(false)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                !showAllResponses
+                  ? 'bg-white text-blue-700 shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Ajusta el informe exactamente a 3 páginas para impresión"
+            >
+              Resumen (10 respuestas)
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowAllResponses(true)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                showAllResponses
+                  ? 'bg-blue-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Muestra todas las respuestas y comentarios cualitativos registrados"
+            >
+              Ver todas ({stats.comments.length})
+            </button>
+          </div>
+
           <button
             onClick={handlePrint}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs uppercase tracking-wider py-2.5 px-5 rounded-xl shadow transition-all hover:shadow-md cursor-pointer active:scale-95"
           >
             <Printer className="w-4 h-4" />
-            <span>Imprimir / Descargar PDF (2-3 Págs)</span>
+            <span>{showAllResponses ? `Imprimir Completo (${stats.comments.length} resp.)` : 'Imprimir Informe (3 Págs)'}</span>
           </button>
         </div>
       </div>
@@ -357,7 +388,7 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
         {/* ======================================================== */}
         <div className="page-3 print:min-h-[270mm] print:flex print:flex-col print:justify-between pt-8 print:pt-0">
           <div>
-            <div className="border-b-2 border-slate-900 pb-2 mb-4 flex justify-between items-center">
+            <div className="border-b-2 border-slate-900 pb-2 mb-4 flex flex-wrap justify-between items-center gap-2">
               <div>
                 <span className="text-[10px] font-bold uppercase text-slate-400">Evaluación: {stats.roleTitle}</span>
                 <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
@@ -365,9 +396,37 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
                   3. Aportaciones Cualitativas del Claustro y Diligencia de Entrega
                 </h3>
               </div>
-              <span className="text-[10px] font-semibold text-slate-500">
-                {stats.comments.length} aportaciones anónimas
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-semibold text-slate-500">
+                  {stats.comments.length} aportaciones anónimas
+                </span>
+                
+                {/* SELECTOR EN LA PROPIA SECCIÓN */}
+                <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 print:hidden text-[10px]">
+                  <button
+                    type="button"
+                    onClick={() => setShowAllResponses(false)}
+                    className={`px-2 py-1 rounded font-bold transition-all cursor-pointer ${
+                      !showAllResponses
+                        ? 'bg-white text-blue-700 shadow-2xs font-extrabold'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    Resumen (10)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAllResponses(true)}
+                    className={`px-2 py-1 rounded font-bold transition-all cursor-pointer ${
+                      showAllResponses
+                        ? 'bg-blue-600 text-white shadow-2xs font-extrabold'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    Ver todas ({stats.comments.length})
+                  </button>
+                </div>
+              </div>
             </div>
 
             {/* Grid de comentarios a 2 columnas para optimizar espacio */}
@@ -376,8 +435,8 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
                 No se registraron comentarios cualitativos adicionales para este cargo en el periodo.
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-6 print:grid-cols-2">
-                {stats.comments.slice(0, 10).map((comm, idx) => (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 mb-4 print:grid-cols-2">
+                {displayedComments.map((comm, idx) => (
                   <div 
                     key={idx} 
                     className="p-3 bg-slate-50 rounded-lg border border-slate-200 text-[10px] text-slate-700 italic relative leading-relaxed print:bg-white print:border print:border-slate-300 break-inside-avoid"
@@ -394,10 +453,26 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
               </div>
             )}
             
+            {/* Nota aclaratoria según el modo elegido */}
             {stats.comments.length > 10 && (
-              <p className="text-[10px] text-slate-400 text-center italic mb-4">
-                (Mostrando las 10 aportaciones más representativas de {stats.comments.length} registradas en el portal digital)
-              </p>
+              <div className="text-[10px] text-slate-500 text-center italic mb-4">
+                {!showAllResponses ? (
+                  <span>
+                    (Mostrando 10 aportaciones para síntesis en 3 páginas. Pulsa{' '}
+                    <button 
+                      onClick={() => setShowAllResponses(true)} 
+                      className="text-blue-600 font-bold underline cursor-pointer print:hidden"
+                    >
+                      Ver todas ({stats.comments.length})
+                    </button>
+                    <span className="hidden print:inline font-semibold">"Ver todas"</span> para consultar o imprimir el anexo íntegro)
+                  </span>
+                ) : (
+                  <span className="text-emerald-700 font-semibold not-italic">
+                    ✓ Mostrando el anexo íntegro con todas las {stats.comments.length} respuestas registradas en el portal.
+                  </span>
+                )}
+              </div>
             )}
           </div>
 
@@ -437,7 +512,7 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
 
             <div className="text-center text-[9px] text-slate-400 pt-2 border-t border-slate-100 flex justify-between items-center">
               <span>Colegio San Buenaventura • Documento Oficial Confidencial</span>
-              <span>Página 3 de 3</span>
+              <span>{showAllResponses ? 'Página 3 (Anexo Completo de Respuestas)' : 'Página 3 de 3'}</span>
             </div>
           </footer>
 

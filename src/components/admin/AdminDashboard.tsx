@@ -17,7 +17,10 @@ import {
   AlertCircle,
   CheckCircle2,
   Lock,
-  Compass
+  Compass,
+  ChevronDown,
+  ChevronUp,
+  Eye
 } from 'lucide-react';
 import { 
   EvaluationRecord, 
@@ -71,6 +74,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [activeTab, setActiveTab] = useState<'resultados' | 'comparativa' | 'ruta' | 'editor' | 'seguridad'>('resultados');
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>('2025_2026');
   const [selectedRoleKey, setSelectedRoleKey] = useState<string>('director_general');
+  const [expandedEvalId, setExpandedEvalId] = useState<string | null>(null);
+  const [showAllCommentsInDashboard, setShowAllCommentsInDashboard] = useState<boolean>(false);
 
   // Modal para borrar evaluación
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -104,6 +109,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const mainRoleKey = selectedRoleKey.startsWith('director_pedagogico_') ? 'director_pedagogico' : selectedRoleKey;
   const currentTheme = themeStyles[surveyConfig[mainRoleKey]?.theme || 'blue'];
+
+  // Mapa de preguntas para desglose detallado de respuestas individuales
+  const currentRoleQuestions = React.useMemo(() => {
+    const map: Record<string, { text: string; category: string }> = {};
+    const sections = surveyConfig[mainRoleKey]?.sections || [];
+    sections.forEach(sec => {
+      sec.questions.forEach(q => {
+        map[q.id] = { text: q.text, category: sec.category };
+      });
+    });
+    return map;
+  }, [surveyConfig, mainRoleKey]);
 
   // Para la comparativa interanual
   const evals2025 = filterEvaluationsByYear(evaluations, '2025_2026');
@@ -442,12 +459,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* COMENTARIOS CUALITATIVOS */}
               <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
+                <div className="border-b border-slate-100 pb-3 flex flex-wrap items-center justify-between gap-2">
                   <h3 className="text-base font-extrabold text-slate-800 flex items-center gap-2">
                     <MessageSquare className="w-5 h-5 text-slate-400" />
                     Comentarios Cualitativos Registrados ({currentStats.comments.length})
                   </h3>
-                  <span className="text-xs text-slate-400">Totalmente Anónimos</span>
+                  <div className="flex items-center gap-2">
+                    {currentStats.comments.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAllCommentsInDashboard(!showAllCommentsInDashboard)}
+                        className="text-xs font-bold text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded-lg transition-colors cursor-pointer"
+                      >
+                        {showAllCommentsInDashboard ? 'Modo compacto' : `Ver todos (${currentStats.comments.length})`}
+                      </button>
+                    )}
+                    <span className="text-xs text-slate-400">Totalmente Anónimos</span>
+                  </div>
                 </div>
 
                 {currentStats.comments.length === 0 ? (
@@ -455,11 +483,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     No se registraron comentarios cualitativos adicionales en este periodo.
                   </p>
                 ) : (
-                  <div className="space-y-3 max-h-[360px] overflow-y-auto pr-2">
+                  <div className={`space-y-3 ${showAllCommentsInDashboard ? '' : 'max-h-[360px] overflow-y-auto'} pr-2`}>
                     {currentStats.comments.map((comm, idx) => (
                       <div key={idx} className="p-4 bg-slate-50 rounded-xl border border-slate-100 text-xs md:text-sm text-slate-700 italic relative">
                         <span className="absolute top-2 left-2 text-2xl text-slate-300 font-serif leading-none">“</span>
-                        <div className="pl-4 pt-1">{comm.text}</div>
+                        <div className="pl-4 pt-1 leading-relaxed">{comm.text}</div>
                         {comm.date && (
                           <div className="text-[10px] text-slate-400 text-right mt-1.5 not-italic">
                             {comm.date}
@@ -473,17 +501,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
               {/* REGISTRO INDIVIDUAL DE EVALUACIONES */}
               <div className="bg-white p-6 md:p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div className="border-b border-slate-100 pb-3">
-                  <h3 className="text-base font-extrabold text-slate-800 flex items-center gap-2">
-                    <List className="w-5 h-5 text-slate-400" />
-                    Registro Individual de Evaluaciones ({currentStats.rawEvaluations.length})
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    Listado de votos anónimos que componen la estadística. En caso de detección de voto fraudulento, puede eliminarse con la clave de seguridad.
-                  </p>
+                <div className="border-b border-slate-100 pb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-800 flex items-center gap-2">
+                      <List className="w-5 h-5 text-slate-400" />
+                      Registro Individual de Evaluaciones ({currentStats.rawEvaluations.length})
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Listado de votos anónimos con opción de ver todas las respuestas a cada pregunta.
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-2">
+                <div className="space-y-3 max-h-[460px] overflow-y-auto pr-2">
                   {currentStats.rawEvaluations.map(ev => {
                     let dateStr = 'Fecha desconocida';
                     if (ev.timestamp) {
@@ -498,30 +528,99 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       }
                     });
                     const avg = count > 0 ? (sum / count).toFixed(2) : '0';
+                    const isExpanded = expandedEvalId === ev.id;
+                    const answersCount = Object.keys(ev.answers || {}).length;
 
                     return (
-                      <div key={ev.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 bg-slate-50 border border-slate-100 rounded-xl gap-3">
-                        <div>
-                          <p className="text-xs font-bold text-slate-700">
-                            Fecha: {dateStr} <span className="mx-2 text-slate-300">|</span> Nota Media: <span className={`${currentTheme.radioCheckedText}`}>{avg}</span>/5
-                          </p>
-                          {ev.comments && (
-                            <p className="text-[11px] text-slate-500 mt-1 italic line-clamp-1">
-                              "{ev.comments}"
-                            </p>
-                          )}
+                      <div key={ev.id} className="p-4 bg-slate-50 border border-slate-200/90 rounded-2xl transition-all hover:border-slate-300 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2 text-xs font-bold text-slate-700">
+                              <span>Fecha: {dateStr}</span>
+                              <span className="text-slate-300">|</span>
+                              <span>Nota Media: <span className={`${currentTheme.radioCheckedText} font-black text-sm`}>{avg}</span>/5</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-slate-500 font-medium">{answersCount} preguntas respondidas</span>
+                            </div>
+                            {ev.comments && !isExpanded && (
+                              <p className="text-xs text-slate-600 mt-1.5 italic line-clamp-1">
+                                "{ev.comments}"
+                              </p>
+                            )}
+                          </div>
+
+                          <div className="flex items-center gap-2 self-end sm:self-center shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => setExpandedEvalId(isExpanded ? null : ev.id)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                                isExpanded 
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 shadow-2xs'
+                              }`}
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                              <span>{isExpanded ? 'Plegar respuestas' : 'Ver respuestas'}</span>
+                              {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                            </button>
+
+                            <button
+                              onClick={() => {
+                                setDeleteId(ev.id);
+                                setDeletePass('');
+                                setDeleteError(false);
+                              }}
+                              className="text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                              title="Borrar voto"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
 
-                        <button
-                          onClick={() => {
-                            setDeleteId(ev.id);
-                            setDeletePass('');
-                            setDeleteError(false);
-                          }}
-                          className="text-rose-600 hover:bg-rose-50 p-2 rounded-lg transition-colors text-xs font-bold flex items-center gap-1.5 cursor-pointer self-end sm:self-center"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" /> Borrar
-                        </button>
+                        {/* DESGLOSE COMPLETO DE RESPUESTAS AL EXPANDIR */}
+                        {isExpanded && (
+                          <div className="pt-3 border-t border-slate-200 space-y-3 animate-fade-in">
+                            {ev.comments && (
+                              <div className="p-3 bg-white rounded-xl border border-slate-200 text-xs italic text-slate-700 leading-relaxed">
+                                <span className="font-bold not-italic text-slate-900 block mb-1">Comentario aportado por el evaluador:</span>
+                                "{ev.comments}"
+                              </div>
+                            )}
+
+                            <div>
+                              <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 mb-2">
+                                Respuestas ítem por ítem ({answersCount}):
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                {Object.entries(ev.answers || {}).map(([qId, val]) => {
+                                  const questionInfo = currentRoleQuestions[qId];
+                                  const questionText = questionInfo ? questionInfo.text : `Pregunta: ${qId}`;
+                                  const categoryName = questionInfo ? questionInfo.category : 'Dimensión';
+                                  const isNA = (val as any) === 'NA' || val === 0 || typeof val !== 'number';
+
+                                  return (
+                                    <div key={qId} className="p-2.5 bg-white rounded-xl border border-slate-200 flex items-start justify-between gap-2 shadow-2xs">
+                                      <div className="flex-1">
+                                        <span className="text-[9px] uppercase font-bold text-slate-400 block leading-tight">{categoryName}</span>
+                                        <p className="text-xs font-medium text-slate-800 leading-snug mt-0.5">{questionText}</p>
+                                      </div>
+                                      <span className={`px-2 py-1 rounded-md text-xs font-black shrink-0 ${
+                                        isNA 
+                                          ? 'bg-slate-100 text-slate-500' 
+                                          : typeof val === 'number' && val >= 4 
+                                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                                            : 'bg-amber-50 text-amber-800 border border-amber-200'
+                                      }`}>
+                                        {isNA ? 'N/A' : `${val} / 5`}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
