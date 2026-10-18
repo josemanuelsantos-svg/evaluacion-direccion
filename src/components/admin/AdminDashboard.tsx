@@ -526,8 +526,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     }
                     let sum = 0, count = 0;
                     Object.values(ev.answers || {}).forEach((val: any) => {
-                      if (val === 'NA' || val === 'N/A' || val === null || val === undefined) return;
-                      if (typeof val === 'number') {
+                      if (typeof val === 'number' && val >= 1 && val <= 5) {
                         sum += val;
                         count++;
                       }
@@ -602,7 +601,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                   const questionInfo = currentRoleQuestions[qId];
                                   const questionText = questionInfo ? questionInfo.text : `Pregunta: ${qId}`;
                                   const categoryName = questionInfo ? questionInfo.category : 'Dimensión';
-                                  const isNA = val === 'NA' || (val as unknown) === 'N/A' || val === null || val === undefined;
+                                  const isNA = val === 'NA' || (val as unknown) === 'N/A' || val === 0 || val === null || val === undefined;
 
                                   return (
                                     <div key={qId} className="p-2.5 bg-white rounded-xl border border-slate-200 flex items-start justify-between gap-2 shadow-2xs">
@@ -613,10 +612,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                       <span className={`px-2 py-1 rounded-md text-xs font-black shrink-0 ${
                                         isNA 
                                           ? 'bg-slate-100 text-slate-600 font-semibold' 
-                                          : val === 0
-                                            ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                                            : typeof val === 'number' && val >= 4 
-                                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                                          : typeof val === 'number' && val >= 4 
+                                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' 
+                                            : typeof val === 'number' && val === 3
+                                              ? 'bg-blue-50 text-blue-800 border border-blue-200'
                                               : 'bg-amber-50 text-amber-800 border border-amber-200'
                                       }`}>
                                         {isNA ? 'No aplica' : `${val} / 5`}

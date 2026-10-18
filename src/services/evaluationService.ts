@@ -202,15 +202,13 @@ export function calculateRoleStats(
           return;
         }
 
-        // Si es un número (incluido 0): se computa como nota válida
-        if (typeof val === 'number') {
+        // Solamente hacen media las puntuaciones del 1 al 5. "No aplica" no suma ni resta.
+        if (typeof val === 'number' && val >= 1 && val <= 5) {
           qSum += val;
           qValid++;
           const roundVal = Math.round(val);
-          if (roundVal >= 0 && roundVal <= 5) {
-            qDist[roundVal] = (qDist[roundVal] || 0) + 1;
-            scoreDistribution[roundVal] = (scoreDistribution[roundVal] || 0) + 1;
-          }
+          qDist[roundVal] = (qDist[roundVal] || 0) + 1;
+          scoreDistribution[roundVal] = (scoreDistribution[roundVal] || 0) + 1;
 
           sectionSum += val;
           sectionValid++;
@@ -340,8 +338,7 @@ export function exportStatsToCSV(stats: RoleStats, academicYearLabel: string): v
     let sum = 0, count = 0;
     if (ev.answers) {
       Object.values(ev.answers).forEach((val: any) => {
-        if (val === 'NA' || val === 'N/A' || val === 'no_aplica' || val === null || val === undefined) return;
-        if (typeof val === 'number') {
+        if (typeof val === 'number' && val >= 1 && val <= 5) {
           sum += val;
           count++;
         }

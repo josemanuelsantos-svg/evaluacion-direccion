@@ -21,10 +21,9 @@ interface SurveyFormProps {
 }
 
 const scaleOptions: Array<{ value: number | 'NA'; label: string; short: string; isNA?: boolean }> = [
-  { value: 0, label: "0 (Calificación nula / 0)", short: "0" },
   { value: 1, label: "Totalmente en desacuerdo", short: "1" },
   { value: 2, label: "En desacuerdo", short: "2" },
-  { value: 3, label: "Neutral / Aceptable", short: "3" },
+  { value: 3, label: "En desacuerdo / Neutral", short: "3" },
   { value: 4, label: "De acuerdo", short: "4" },
   { value: 5, label: "Totalmente de acuerdo", short: "5" },
   { value: 'NA', label: "No aplica (Sin experiencia directa)", short: "No aplica", isNA: true }
@@ -171,8 +170,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                         {q.text}
                       </p>
                       
-                      {/* SELECTOR SEGMENTADO MODERNO (0 a 5 + No aplica) */}
-                      <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
+                      {/* SELECTOR SEGMENTADO (1 a 5 + No aplica) */}
+                      <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
                         {scaleOptions.map((opt) => {
                           const isSelected = currentVal === opt.value;
                           const isNA = opt.isNA;
@@ -186,9 +185,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                                 isSelected
                                   ? isNA
                                     ? 'bg-slate-800 text-white border-slate-800 shadow-md scale-102 ring-2 ring-slate-400'
-                                    : opt.value === 0
-                                      ? 'bg-rose-700 text-white border-rose-700 shadow-md scale-102'
-                                      : `${theme.headerBg} text-white border-transparent shadow-md scale-102`
+                                    : `${theme.headerBg} text-white border-transparent shadow-md scale-102`
                                   : isNA
                                     ? 'bg-slate-50 text-slate-600 border-slate-300 hover:border-slate-400 hover:bg-slate-100'
                                     : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-100/80'
@@ -206,7 +203,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
                       </div>
                       
                       <div className="mt-3.5 text-[11px] text-slate-500 flex flex-wrap justify-between gap-2 px-1 border-t border-slate-200/60 pt-2 font-medium">
-                        <span>0 a 5 = Escala numérica (0 computa como 0)</span>
+                        <span>Escala de valoración de 1 a 5</span>
                         <span className="font-semibold text-slate-700">No aplica = Excluido de la media (ni sube ni baja)</span>
                       </div>
                     </div>
