@@ -1,0 +1,291 @@
+{
+  "id": "encuestas",
+  "data": {
+    "director_general": {
+      "requiresSubRole": false,
+      "sections": [
+        {
+          "category": "Eficacia y Visión Institucional",
+          "questions": [
+            {
+              "text": "Siento que transmite una visión clara y motivadora del objetivo del colegio.",
+              "id": "dg_1"
+            },
+            {
+              "text": "Ante imprevistos o crisis, gestiona la situación con seguridad, eficacia y tranquilidad.",
+              "id": "dg_2"
+            },
+            {
+              "text": "Toma decisiones organizativas que realmente mejoran el funcionamiento del centro.",
+              "id": "dg_3"
+            },
+            {
+              "text": "Me siento impulsado/a por la dirección para innovar, formarme y mejorar continuamente en mi labor.",
+              "id": "dg_4"
+            }
+          ]
+        },
+        {
+          "questions": [
+            {
+              "text": "En mi trato personal con él, percibo cercanía, respeto y empatía hacia mis circunstancias.",
+              "id": "dg_5"
+            },
+            {
+              "text": "Siento que mi esfuerzo diario y mis aportaciones son valoradas y reconocidas activamente.",
+              "id": "dg_6"
+            },
+            {
+              "text": "Cuando surgen conflictos, interviene de manera justa, escuchando a todas las partes y buscando soluciones.",
+              "id": "dg_7"
+            },
+            {
+              "text": "Representa adecuada y coherentemente los valores representados en el ideario franciscano del colegio.",
+              "id": "dg_8"
+            }
+          ],
+          "category": "Trato Personal y Clima Laboral"
+        },
+        {
+          "questions": [
+            {
+              "text": "Me resulta fácil acceder a él cuando necesito plantear una inquietud o propuesta importante.",
+              "id": "dg_9"
+            },
+            {
+              "text": "La comunicación institucional (reuniones, circulares) es clara, transparente y llega a tiempo.",
+              "id": "dg_10"
+            },
+            {
+              "text": "Escucha activamente las críticas constructivas y demuestra voluntad de cambiar lo que no funciona.",
+              "id": "dg_11"
+            },
+            {
+              "text": "Defiende y representa con eficacia los intereses de los trabajadores y del colegio hacia el exterior.",
+              "id": "dg_12"
+            }
+          ],
+          "category": "Accesibilidad y Comunicación"
+        }
+      ],
+      "description": "Evaluación del liderazgo, capacidad de resolución y trato humano en la dirección del centro.",
+      "iconName": "Briefcase",
+      "title": "Director General"
+    },
+    "administrador": {
+      "sections": [
+        {
+          "questions": [
+            {
+              "text": "Mantiene las instalaciones en buen estado, garantizando que mi espacio de trabajo sea seguro, limpio y confortable.",
+              "id": "ad_1"
+            },
+            {
+              "text": "Supervisa de forma efectiva los servicios generales (limpieza, portería, mantenimiento) asegurando su buen funcionamiento diario.",
+              "id": "ad_3"
+            },
+            {
+              "text": "Garantiza que el centro cumple con las medidas de seguridad, evacuación y prevención de riesgos necesarias.",
+              "id": "ad_4"
+            }
+          ],
+          "category": "Estado y Funcionalidad de Instalaciones"
+        },
+        {
+          "questions": [
+            {
+              "text": "Cuando reporto una avería o necesito una reparación urgente en mi aula, se actúa y resuelve con rapidez y eficacia.",
+              "id": "ad_5"
+            },
+            {
+              "text": "En mi trato directo con él, recibo siempre una atención amable y respetuosa.",
+              "id": "ad_6"
+            },
+            {
+              "text": "Se muestra accesible y receptivo cuando necesito plantear una necesidad material extraordinaria para un proyecto de clase.",
+              "id": "ad_7"
+            },
+            {
+              "text": "Representa adecuada y coherentemente los valores relacionados con el ideario franciscano del centro.",
+              "id": "ad_8"
+            }
+          ],
+          "category": "Agilidad en Reparaciones y Trato Personal"
+        },
+        {
+          "category": "Gestión de Recursos y Mejoras",
+          "questions": [
+            {
+              "text": "Gestiona las peticiones de material o mobiliario de manera diligente.",
+              "id": "ad_9"
+            },
+            {
+              "text": "Implementa mejoras y reformas en las infraestructuras que realmente impactan positivamente.",
+              "id": "ad_12"
+            }
+          ]
+        }
+      ],
+      "iconName": "Building",
+      "description": "Evaluación del mantenimiento de instalaciones, agilidad en reparaciones y trato humano.",
+      "requiresSubRole": false,
+      "title": "Administrador del Centro"
+    },
+    "coordinador_pastoral": {
+      "sections": [
+        {
+          "category": "Eficacia en la Dinamización",
+          "questions": [
+            {
+              "text": "Organiza las actividades pastorales y solidarias con eficacia, anticipación y claridad en las indicaciones.",
+              "id": "cp_1"
+            },
+            {
+              "text": "Me facilita materiales, tiempos y recursos prácticos que me resultan realmente útiles para trabajar en mis clases.",
+              "id": "cp_2"
+            },
+            {
+              "text": "Las celebraciones, actividades o momentos de reflexión que propone logran conectar con la realidad y motivar al alumnado.",
+              "id": "cp_3"
+            },
+            {
+              "text": "Consigue involucrar al claustro en la acción pastoral.",
+              "id": "cp_4"
+            }
+          ]
+        },
+        {
+          "category": "Acompañamiento y Vivencia Personal",
+          "questions": [
+            {
+              "text": "Es una figura acogedora, que transmite paz, alegría y sabe escuchar sin juzgar.",
+              "id": "cp_5"
+            },
+            {
+              "text": "Puedo acudir a ella en un momento de dificultad personal y recibiré un acompañamiento sincero.",
+              "id": "cp_6"
+            },
+            {
+              "text": "Trata a todos los miembros de la comunidad con respeto, independientemente de sus creencias o nivel de implicación.",
+              "id": "cp_7"
+            },
+            {
+              "id": "coordinador_pastoral_q_566987_l8na",
+              "text": "Representa adecuada y coherentemente los valores relacionados con el ideario franciscano del centro."
+            }
+          ]
+        },
+        {
+          "category": "Identidad y Compromiso",
+          "questions": [
+            {
+              "text": "Comunica el ideario y los valores del centro de una forma inspiradora y actual.",
+              "id": "cp_9"
+            },
+            {
+              "text": "Gestiona con eficacia los proyectos de voluntariado, logrando un impacto real y formativo en quienes participan.",
+              "id": "cp_10"
+            },
+            {
+              "text": "Consigue despertar la sensibilidad y el espíritu crítico y solidario frente a las injusticias sociales.",
+              "id": "cp_11"
+            },
+            {
+              "text": "Su presencia y su labor hacen que se perciba un clima franciscano en el día a día en el centro.",
+              "id": "cp_12"
+            }
+          ]
+        }
+      ],
+      "iconName": "HeartHandshake",
+      "title": "Coordinador de Pastoral",
+      "description": "Evaluación del acompañamiento humano, eficacia en la dinamización de actividades y cercanía.",
+      "requiresSubRole": false
+    },
+    "director_pedagogico": {
+      "title": "Director Pedagógico",
+      "subRoles": [
+        {
+          "title": "Infantil y Primaria",
+          "id": "infantil_primaria"
+        },
+        {
+          "title": "Secundaria y Bachillerato",
+          "id": "secundaria_bachillerato"
+        }
+      ],
+      "requiresSubRole": true,
+      "iconName": "GraduationCap",
+      "sections": [
+        {
+          "category": "Eficacia Operativa y Gestión Diaria",
+          "questions": [
+            {
+              "text": "Resuelve con agilidad y eficacia los problemas organizativos diarios (horarios, sustituciones, guardias).",
+              "id": "dp_1"
+            },
+            {
+              "text": "Sus orientaciones pedagógicas me resultan útiles, realistas y aplicables en mi día a día en el aula.",
+              "id": "dp_2"
+            },
+            {
+              "text": "Coordina junto al departamento de orientación de forma eficiente la atención a la diversidad, dando respuestas ágiles a las necesidades de mis alumnos.",
+              "id": "dp_3"
+            },
+            {
+              "text": "Sabe dinamizar y organizar las reuniones de equipo docente para que sean realmente productivas.",
+              "id": "dp_4"
+            }
+          ]
+        },
+        {
+          "questions": [
+            {
+              "text": "Siento que se preocupa por mi bienestar profesional y me ofrece un trato comprensivo.",
+              "id": "dp_5"
+            },
+            {
+              "text": "Me apoya de manera efectiva y me da facilidades cuando propongo nuevas iniciativas para mis clases.",
+              "id": "dp_6"
+            },
+            {
+              "text": "Cuando cometo un error o tengo una dificultad, su corrección es constructiva, respetuosa y orientada a la mejora.",
+              "id": "dp_7"
+            },
+            {
+              "text": "Asume su responsabilidad y se implica a mi lado cuando necesito.",
+              "id": "dp_8"
+            },
+            {
+              "id": "director_pedagogico_q_828393_bdwh",
+              "text": "Representa adecuada y coherentemente los valores relacionados con el ideario franciscano del centro."
+            }
+          ],
+          "category": "Acompañamiento y Trato Personal"
+        },
+        {
+          "category": "Gestión de Convivencia y Apoyo con Familias",
+          "questions": [
+            {
+              "text": "Me siento plenamente respaldado/a por la dirección pedagógica cuando trato con familias en situaciones difíciles.",
+              "id": "dp_9"
+            },
+            {
+              "text": "Interviene con eficacia, firmeza y rapidez ante problemas graves de disciplina o convivencia en mis clases.",
+              "id": "dp_10"
+            },
+            {
+              "text": "Transmite confianza, tacto y profesionalidad en su trato directo con el alumnado y las familias.",
+              "id": "dp_11"
+            },
+            {
+              "text": "Aplica las normas de convivencia del centro de forma justa.",
+              "id": "dp_12"
+            }
+          ]
+        }
+      ],
+      "description": "Evaluación del apoyo diario en el aula, resolución de problemas académicos y trato al docente."
+    }
+  }
+}

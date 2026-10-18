@@ -1,0 +1,396 @@
+{
+  "generatedAt": "2026-10-18T13:15:00.019Z",
+  "totalEvaluations": 185,
+  "period": "Curso 2025-2026 (Marzo - Abril 2026)",
+  "rolesSummary": {
+    "director_general": {
+      "title": "Director General",
+      "totalResponses": 47,
+      "globalAverage": 4.24,
+      "diagnostico": "Excelencia / Liderazgo Sólido",
+      "sectionAverages": [
+        {
+          "category": "Eficacia y Visión Institucional",
+          "average": 4.06,
+          "sampleCount": 175
+        },
+        {
+          "category": "Trato Personal y Clima Laboral",
+          "average": 4.32,
+          "sampleCount": 176
+        },
+        {
+          "category": "Accesibilidad y Comunicación",
+          "average": 4.33,
+          "sampleCount": 172
+        }
+      ],
+      "scoreDistribution": {
+        "1": 13,
+        "2": 25,
+        "3": 54,
+        "4": 164,
+        "5": 267
+      },
+      "commentsCount": 10,
+      "comments": [
+        {
+          "date": "2026-03-25T16:05:59.072Z",
+          "comment": "Cercanía y escucha, es lo que más destaco"
+        },
+        {
+          "date": "2026-03-25T17:09:44.644Z",
+          "comment": "Está claro que hay un interés por cuidar las relaciones y el bienestar del profesorado, algo que considero muy valioso. Sin embargo, todavía me genera dudas si ese interés se está traduciendo en acciones concretas, más allá de reuniones de carácter informativo o de escucha.\nCreo que necesitamos una dirección clara, equilibrada y cercana, que acompañe y dé coherencia a todo este proceso. Javi, es importante estar presente, acompañar desde la cercanía y ver las cosas con nuestros propios ojos.\nSe están haciendo muchas cosas buenas, muchas, pero a veces una sola acción negativa puede generar un impacto difícil de revertir."
+        },
+        {
+          "date": "2026-03-26T07:47:30.197Z",
+          "comment": "Agradezco que sea fácil acceder a hablar con él en cualquier momento y que si pasa algo pregunte en vez de formarse su idea solo con la versión de la otra persona. \nComo aspecto de mejora, no siempre responde a los mails, aunque entiendo que el volumen que recibe es enorme y que a veces es complicado."
+        },
+        {
+          "date": "2026-03-26T07:54:38.609Z",
+          "comment": "Aunque con este comentario creo que va a dejar de ser anónima mi valoración, no me importa y además ya se lo he indicado en alguna ocasión, me siento muy a gusto contigo, Javi. Llevamos varios años trabajando \"codo a codo\" y es muy buen compañero y amigo, siempre que lo he necesitado ahí ha estado (incluso con llamadas por estar participando en Erasmus+) y espero que él haya sentido lo mismo conmigo, como una fiel compañera y profesora. Sin embargo, creo que habría que repasar la cantidad de ausencias de profesores durante las jornadas lectivas ya que es difícil cuadrar las horas de guardias y casi siempre les tocan a los mismos hacer las sustituciones. Me parece que se hacen visibles los cambios, primero escuchando y teniendo un encuentro con los alumnos de 2º bachillerato, y ya con este cuestionario de evaluación está indicando la escucha activa de sus trabajadores, el acceso a cambiar cosas si no nos gustan y el estar presente en nuestras vidas."
+        },
+        {
+          "date": "2026-03-26T09:22:31.736Z",
+          "comment": "Es muy  buena gente y eso se nota en el ambiente del colegio. No hace caso a cotillas ni a grupitos y nos trata a todos por igual."
+        },
+        {
+          "date": "2026-03-26T11:01:31.920Z",
+          "comment": "Quisiera expresar mi preocupación por varias situaciones recientes en las que he sentido que mi labor no ha contado con el respaldo necesario. En distintos momentos se han tomado decisiones o realizado intervenciones sin consultar previamente al tutor responsable, con mayor experiencia en la gestión de estos casos. Esto ha generado ocasiones en las que me he sentido expuesto y con dificultades para desempeñar adecuadamente mis funciones.\nConsidero importante favorecer una comunicación más fluida y respetar los roles establecidos dentro del equipo, de modo que cada profesional pueda ejercer sus responsabilidades con claridad y apoyo. Creo firmemente que una mejor coordinación contribuiría al bienestar del alumnado y al funcionamiento eficaz del centro."
+        },
+        {
+          "date": "2026-03-26T11:03:11.747Z",
+          "comment": "Hay que ser más cercano, empatico y preocuparse por el día a día de los compañeros… no solo por el del grupo de amigos, en el cole todos somos iguales!"
+        },
+        {
+          "date": "2026-03-26T13:07:32.733Z",
+          "comment": "Sería ideal disponer de un horario de disponibilidad para reuniones presenciales y poder así cuadrar días y horas. En el tema de las formaciones, quizás éstas deberían ser más personalizadas por etapas y dado el caso, algunoa a nivel todo el centro, sobre todo si se va a trabajar un proyecto en conjunto."
+        },
+        {
+          "date": "2026-04-06T21:13:18.958Z",
+          "comment": "Javi es una persona ecuánime y toma sus decisiones de forma reflexiva, siempre priorizando el bien del colegio y sus trabajadores"
+        },
+        {
+          "date": "2026-04-07T19:45:40.409Z",
+          "comment": "Es muy pronto para hacer una valoración, pero confío en que realizará muy bien su labor."
+        }
+      ]
+    },
+    "director_pedagogico_infantil_primaria": {
+      "title": "Director Pedagógico (Infantil y Primaria)",
+      "totalResponses": 28,
+      "globalAverage": 4.83,
+      "diagnostico": "Excelencia / Liderazgo Sólido",
+      "sectionAverages": [
+        {
+          "category": "Eficacia Operativa y Gestión Diaria",
+          "average": 4.79,
+          "sampleCount": 102
+        },
+        {
+          "category": "Acompañamiento y Trato Personal",
+          "average": 4.85,
+          "sampleCount": 132
+        },
+        {
+          "category": "Gestión de Convivencia y Apoyo con Familias",
+          "average": 4.84,
+          "sampleCount": 100
+        }
+      ],
+      "scoreDistribution": {
+        "1": 3,
+        "2": 3,
+        "3": 8,
+        "4": 20,
+        "5": 300
+      },
+      "commentsCount": 12,
+      "comments": [
+        {
+          "date": "2026-03-26T09:05:10.706Z",
+          "comment": "Siempre está atento a como se encuentran las personas, te llama se te ha visto mal. Cuida mucho a la gente y esto hace que el ambiente de trabajo sea muy bueno. Valora a las personas y su trabajo.Es muy efectivo y resolutivo."
+        },
+        {
+          "date": "2026-03-26T10:57:36.607Z",
+          "comment": "No hay una figura como tal, solo acude a infantil cuando hay un problema, no hay un acompañamiento ni un seguimiento, solo estamos cuando pasan cosas malas… creo que hay que estar más presentes en las aulas en el día a día, sin previo aviso, siendo espontáneo y entrar en las clases con libertad."
+        },
+        {
+          "date": "2026-03-26T17:47:12.573Z",
+          "comment": "En infantil se nota mucho el cambio desde que está el, nos ha devuelto autoridad y ganas de hacer las cosas a las tutoras, aunque no todas le dejan hacer su trabajo él siempre está disponible, puedes contar con él a cualquier hora y siempre te va a ayudar y a comprender."
+        },
+        {
+          "date": "2026-03-27T07:04:10.158Z",
+          "comment": "Es una persona clave en el colegio, siempre tiene un momento para dedicarte si lo necesitas. Ante cualquier problema con las familias te apoya y aporta. Crea un ambiente de equipo magnífico. En el ámbito personal un 10 también."
+        },
+        {
+          "date": "2026-03-28T06:42:20.316Z",
+          "comment": "Ha hecho que el colegio esté donde está, no hay más que ver todo lo que ha hecho para las puertas abiertas, un libro, una web, es quien metió los chromebook, quien ha metido todos los proyectos en primaria, empujado el cooperativo. Siempre te ayuda y siempre está dispuesto a aprender y a enseñar. No hay más que ver que no para de hacer aplicaciones para hacer el colegio mejor...\nTodo esto lo hace con humildad, estando en su clase y cumpliendo como uno más, haciendo patios, haciendo filas  y cumpliendo su tutoría, lo único que no entiendo es qué hace este chico con esta capacidad en un colegio."
+        },
+        {
+          "date": "2026-03-30T21:07:25.747Z",
+          "comment": "Siempre que le he necesitado ha estado para ayudarme en todo y cuando ha hecho falta he sabido que podía contar con él para ayudarme en lo que hiciera falta."
+        },
+        {
+          "date": "2026-04-01T14:38:31.923Z",
+          "comment": "Todo muy bien solo me preocupa que últimamente se le ve mal y eso nos afecta a todos."
+        },
+        {
+          "date": "2026-04-06T17:46:08.744Z",
+          "comment": "Desde mi punto de vista, el papel que desempeña es muy bueno. Siempre que he tenido algún problema, me he sentido muy respaldada y he recibido un feedback muy rápido."
+        },
+        {
+          "date": "2026-04-06T21:07:03.337Z",
+          "comment": "Valoro mucho su cercanía, siempre está dispuesto a escuchar  a ayudar y sobre todo que ha sido capaz de crear un buen ambiente en primaria."
+        },
+        {
+          "date": "2026-04-06T21:10:46.247Z",
+          "comment": "Jose siempre está disponible para todo lo que se pueda necesitar de él. Es una persona cercana y atenta, además de extraordinariamente eficaz."
+        },
+        {
+          "date": "2026-04-07T13:49:35.291Z",
+          "comment": "Siempre suma, siempre está para lo que necesito, sé que puedo contar con él para todo lo que hace falta, es el primero en llegar y el último en irse, sustituye, carga muebles y hace lo que haga falta, es un ejemplo para todos."
+        },
+        {
+          "date": "2026-04-07T19:56:26.216Z",
+          "comment": "Trabajador excepcional, profesional, empático, generoso y humilde, siempre dispuesto a ayudar si lo necesitas. Un valor imprescindible en el centro."
+        }
+      ]
+    },
+    "director_pedagogico_secundaria_bachillerato": {
+      "title": "Director Pedagógico (Secundaria y Bachillerato)",
+      "totalResponses": 17,
+      "globalAverage": 4.26,
+      "diagnostico": "Excelencia / Liderazgo Sólido",
+      "sectionAverages": [
+        {
+          "category": "Eficacia Operativa y Gestión Diaria",
+          "average": 3.97,
+          "sampleCount": 65
+        },
+        {
+          "category": "Acompañamiento y Trato Personal",
+          "average": 4.56,
+          "sampleCount": 80
+        },
+        {
+          "category": "Gestión de Convivencia y Apoyo con Familias",
+          "average": 4.19,
+          "sampleCount": 67
+        }
+      ],
+      "scoreDistribution": {
+        "1": 16,
+        "2": 6,
+        "3": 16,
+        "4": 42,
+        "5": 132
+      },
+      "commentsCount": 6,
+      "comments": [
+        {
+          "date": "2026-03-25T19:56:12.549Z",
+          "comment": "Las posibles carencias se deberán probablemente a la falta de experiencia en el cargo."
+        },
+        {
+          "date": "2026-03-26T07:50:35.727Z",
+          "comment": "Todo bien, muy accesible y resolvemos las cosas rápido."
+        },
+        {
+          "date": "2026-03-26T08:03:02.723Z",
+          "comment": "Aunque con este comentario dejo de ser anónima, quiero constatar que trabajar con Luis está siendo muy gratificante, siempre en la escucha, empático y con ese toque de \"organización cuadriculada\" que todos los hombres de ciencias tienen y que ayuda al toque \"más emotivo y. maternal\" que suelo poner a las cosas. Las guardias a veces son auténticos quebraderos de cabeza y es imposible cuadrarlo todo, y sí que considero que las reuniones de los jueves a veces no son tan productivas como en un principio se plantean y podría aligerarse para compensar las semanas en las que es imprescindible quedarse mucho más tiempo."
+        },
+        {
+          "date": "2026-03-26T09:25:07.165Z",
+          "comment": "No se ni que decir, a parte de que es una dupla alucinante y bueno, da gusto contar con ellos y para ellos."
+        },
+        {
+          "date": "2026-03-26T11:08:32.287Z",
+          "comment": "Cuanto más lejos mejor porque ha llegado un punto en que siento que, por su culpa, aquí trabajo por horas (y dada la inutilidad de las que nos impone por obligatorias, reacciono disminuyendo las voluntarias)"
+        },
+        {
+          "date": "2026-03-26T12:53:27.944Z",
+          "comment": "Creo que las reuniones de los jueves a veces son poco efectivas porque se podría ir hablando, por ejemplo, de los alumnos que tiene dificultades académicas o personales para que la evaluación no se convierta en una maratón de horas o para que los grupos de trabajo puedan avanzar con la celeridad que algunas circunstancias requieren. Hay veces que se necesitan esas horas para trabajo personal como corregir o preparar clases."
+        }
+      ]
+    },
+    "coordinador_pastoral": {
+      "title": "Coordinadora de Pastoral",
+      "totalResponses": 47,
+      "globalAverage": 4.02,
+      "diagnostico": "Aceptable / Margen de mejora",
+      "sectionAverages": [
+        {
+          "category": "Eficacia en la Dinamización",
+          "average": 3.82,
+          "sampleCount": 179
+        },
+        {
+          "category": "Acompañamiento y Vivencia Personal",
+          "average": 4.25,
+          "sampleCount": 164
+        },
+        {
+          "category": "Identidad y Compromiso",
+          "average": 4.01,
+          "sampleCount": 172
+        }
+      ],
+      "scoreDistribution": {
+        "1": 13,
+        "2": 49,
+        "3": 83,
+        "4": 139,
+        "5": 231
+      },
+      "commentsCount": 14,
+      "comments": [
+        {
+          "date": "2026-03-25T18:50:16.371Z",
+          "comment": "Creo se se debería volver a tener una misa de niños ya que llamaría más la atención de ellos,los pequeños se aburren con las misas de adultos y pierden interés."
+        },
+        {
+          "date": "2026-03-25T19:50:50.571Z",
+          "comment": "Hay falta de coordinación entre la parte pastoral y pedagógica a parte de que hay demasiadas actividades pastorales organizadas desde mi punto de vista. Estas actividades excesivas interrumpen el desarrollo normal de la vida académica del centro. Creo que hay que dar una vuelta a la organización de todos lo que se hace. A veces menos es más, porque los chavales se saturan."
+        },
+        {
+          "date": "2026-03-26T07:28:15.745Z",
+          "comment": "Hay demasiadas actividades de Pastoral que interfieren con el desarrollo de las clases día a día."
+        },
+        {
+          "date": "2026-03-26T07:41:52.945Z",
+          "comment": "Me parece que trabaja muy bien y es competente."
+        },
+        {
+          "date": "2026-03-26T07:46:38.296Z",
+          "comment": "A veces es difícil combinar todas las actividades de Pastoral en las horas de tutoría teniendo que utilizar horas de clase para terminar con las propuestas."
+        },
+        {
+          "date": "2026-03-26T09:23:56.395Z",
+          "comment": "Su alegría es contagiosa y siempre tiene una palabra amable para todos y no solo te oye, ye escucha cuando hablas con ella."
+        },
+        {
+          "date": "2026-03-26T10:59:37.414Z",
+          "comment": "No hay mejor persona para hacer la pastoral que Susana y su equipo. Lo vive y lo transmite de forma que involucra a toda la comunidad educativa."
+        },
+        {
+          "date": "2026-03-26T11:10:35.613Z",
+          "comment": "Creo que gran parte de la labor la deberían llevar a cabo los frailes, no dejar a los tutores esas responsabilidades"
+        },
+        {
+          "date": "2026-03-26T13:02:11.395Z",
+          "comment": "Creo que hay demasiadas actividades que se proponen desde Pastoral y algunas de ellas, tienen poco tiempo para llevarlas a cabo desde las tutorías.\nHay docentes que no se involucran en las actividades de Pastoral y el producto final de la actividad se ve afectado."
+        },
+        {
+          "date": "2026-03-26T14:02:09.545Z",
+          "comment": "A este respecto, creo que la labor de Pastoral es muy buena y encaminada a ensalzar los valores franciscanos, pero creo que en ocasiones nos juntamos con muchas campañas que terminan saturando y se puede perder la esencia de lo que se pretende conseguir; así como la carga de trabajo además de lo que corresponde por curso, lo que muchas veces nos lleva a estar a estar saturados."
+        },
+        {
+          "date": "2026-03-26T18:01:41.947Z",
+          "comment": "El clima franciscano se basa en la implicación en el día a día y cuando una persona está todo el día fuera de clase cuesta verlo."
+        },
+        {
+          "date": "2026-03-30T19:28:17.165Z",
+          "comment": "Destacar su trato humano y profesional sin distinciones."
+        },
+        {
+          "date": "2026-04-01T14:37:26.076Z",
+          "comment": "Se hacen muchas actividades, a veces está la sensación de hacer por hacer, este año está demasiado cargado de actividades y no somos conscientes de que cada vez la realidad nos exige más, los niños tienen más dificultades y peor nivel, tenemos niños en los cursos de abajo que no saben leer aún y no podemos interrumpir el ritmo constantemente."
+        },
+        {
+          "date": "2026-04-06T14:44:28.368Z",
+          "comment": "Entendiendo que las actividades de Pastoral deben ser esenciales en el centro, considero que el volumen de actividades que realizamos es demasiado alto. Está el calendario muy cargado y eso, incluso, puede llegar a generar rechazo en el alumnado. Muchas veces, los materiales no están adaptados a la edad a la que hay que trabajarlos"
+        }
+      ]
+    },
+    "administrador": {
+      "title": "Administrador del Centro",
+      "totalResponses": 46,
+      "globalAverage": 4.55,
+      "diagnostico": "Excelencia / Liderazgo Sólido",
+      "sectionAverages": [
+        {
+          "category": "Estado y Funcionalidad de Instalaciones",
+          "average": 4.37,
+          "sampleCount": 133
+        },
+        {
+          "category": "Agilidad en Reparaciones y Trato Personal",
+          "average": 4.72,
+          "sampleCount": 169
+        },
+        {
+          "category": "Gestión de Recursos y Mejoras",
+          "average": 4.51,
+          "sampleCount": 86
+        }
+      ],
+      "scoreDistribution": {
+        "1": 2,
+        "2": 6,
+        "3": 33,
+        "4": 81,
+        "5": 266
+      },
+      "commentsCount": 14,
+      "comments": [
+        {
+          "date": "2026-03-25T16:01:52.454Z",
+          "comment": "Es un trabajador incansable, todo ha mejorado desde que llegó, es cercano, escucha y resuelve."
+        },
+        {
+          "date": "2026-03-25T18:18:41.500Z",
+          "comment": "Es el mejor ejemplo de servicio franciscano del colegio."
+        },
+        {
+          "date": "2026-03-25T19:53:34.844Z",
+          "comment": "Creo que la opción de la aplicación de las incidencias es un acierto. Por destacar algo a mejorar, la practicidad es importante, pero la estética también lo es, a veces se es práctico, pero el resultado no es estético."
+        },
+        {
+          "date": "2026-03-25T22:52:46.209Z",
+          "comment": "Es un ejemplo para la comunidad educativa y para su comunidad franciscana."
+        },
+        {
+          "date": "2026-03-26T07:39:59.936Z",
+          "comment": "Cuando he necesitado algo me lo ha resuelto.\nConsidero que a lo largo de los años ha cambiado a mejor su forma de relacionarse, ya que antes no decía ni hola y ahora al menos responde cuando le saludas."
+        },
+        {
+          "date": "2026-03-26T07:43:21.724Z",
+          "comment": "Creo que ha habido un cambio sustancial desde que está Antonio al frente, noto mucha más implicación, con un carácter amable y servicial. Sin embargo, aún hay muchas cosas tipo gimnasio, zona infantil, alguna pizarra como la de diversificación de 4º ESO, falta una silla de profesor adecuada en 3º ESO A que hay que cambiar, pero poco a poco y siempre me he encontrado con una gran ayuda."
+        },
+        {
+          "date": "2026-03-26T09:21:07.059Z",
+          "comment": "El hecho de traer los muebles y que pudiéramos elegir para nosotros ha sido muy bueno."
+        },
+        {
+          "date": "2026-03-26T10:46:44.777Z",
+          "comment": "Me gustaría que se dirigiera a mi (a cualquiera de nosotros) para preguntar cuáles son mis necesidades como profesor en cuanto a recursos materiales para llevar a cabo mi trabajo. Además de ello, intentar que determinados espacios no desmerezcan..."
+        },
+        {
+          "date": "2026-03-26T11:04:24.229Z",
+          "comment": "Antonio es el mejor administrador que podemos tener."
+        },
+        {
+          "date": "2026-03-26T12:47:02.129Z",
+          "comment": "Creo que es fundamental tener un plan de evacuación en el Centro y llevar a cabo simulacros para entrenarnos tanto docentes, PAS y alumnos ante situaciones de emergencias."
+        },
+        {
+          "date": "2026-03-30T19:29:53.803Z",
+          "comment": "Trato profesional y respetuoso"
+        },
+        {
+          "date": "2026-03-30T20:17:06.366Z",
+          "comment": "Estaría bien que no solo fuéramos “poniendo parches” en las reparaciones sino que hubiera un proyecto de futuro en las aulas que garantice que vayamos haciendo mejoras de manera progresiva con cierta coherencia."
+        },
+        {
+          "date": "2026-04-01T14:33:36.407Z",
+          "comment": "Todo está muy bien pero sería importante hacer un simulacro de incendios."
+        },
+        {
+          "date": "2026-04-07T19:50:13.540Z",
+          "comment": "Resulta ejemplificadora la implicación directa y personal que pone en sus desempeños."
+        }
+      ]
+    }
+  }
+}
