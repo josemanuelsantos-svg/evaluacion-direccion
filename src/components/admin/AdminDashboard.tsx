@@ -20,7 +20,10 @@ import {
   Compass,
   ChevronDown,
   ChevronUp,
-  Eye
+  Eye,
+  Sparkles,
+  Award,
+  ShieldCheck
 } from 'lucide-react';
 import { 
   EvaluationRecord, 
@@ -37,6 +40,7 @@ import {
   deleteEvaluationRecord 
 } from '../../services/evaluationService';
 import { HISTORICAL_ACADEMIC_YEARS } from '../../services/historicalData';
+import { getCandidateSummary } from '../../services/candidateSummaries';
 import { HistoricalComparisonView } from './HistoricalComparisonView';
 import { EvaluationPathwayView } from './EvaluationPathwayView';
 import { SurveyEditorView } from './SurveyEditorView';
@@ -107,6 +111,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
   const filteredEvaluations = filterEvaluationsByYear(evaluations, selectedAcademicYear);
   const currentStats = calculateRoleStats(filteredEvaluations, selectedRoleKey, surveyConfig);
+  const candidateSummary = getCandidateSummary(selectedRoleKey);
 
   const activeYearObj = HISTORICAL_ACADEMIC_YEARS.find(y => y.id === selectedAcademicYear);
   const activeYearLabel = activeYearObj ? activeYearObj.label : selectedAcademicYear;
@@ -367,6 +372,74 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   </p>
                 </div>
               </div>
+
+              {/* SÍNTESIS EJECUTIVA DEL CANDIDATO */}
+              {candidateSummary && (
+                <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-2 bg-amber-50 text-amber-600 rounded-xl border border-amber-200">
+                        <Sparkles className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-black text-slate-900 leading-tight">
+                          Resumen Ejecutivo de Resultados: {candidateSummary.roleTitle} {candidateSummary.subRoleTitle && `(${candidateSummary.subRoleTitle})`}
+                        </h3>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Síntesis cualitativa y cuantitativa de la valoración 360º del claustro
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg text-xs font-black">
+                        {candidateSummary.percentFives}% de votos excelentes (5★)
+                      </span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-700 leading-relaxed font-medium bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                    {candidateSummary.diagnosticoGeneral}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 bg-emerald-50/60 rounded-xl border border-emerald-100">
+                      <h4 className="text-xs font-black text-emerald-900 mb-2 flex items-center gap-1.5">
+                        <TrendingUp className="w-4 h-4 text-emerald-600" />
+                        Fortalezas Clave Reconocidas
+                      </h4>
+                      <ul className="space-y-1.5 text-xs text-emerald-950 font-medium">
+                        {candidateSummary.fortalezasClave.map((f, i) => (
+                          <li key={i} className="flex items-start gap-1.5">
+                            <span className="text-emerald-500 font-bold shrink-0">•</span>
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="p-4 bg-amber-50/60 rounded-xl border border-amber-100">
+                      <h4 className="text-xs font-black text-amber-900 mb-2 flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4 text-amber-600" />
+                        Oportunidades de Mejora y Retos 2026/2027
+                      </h4>
+                      <ul className="space-y-1.5 text-xs text-amber-950 font-medium">
+                        {candidateSummary.areasMejoraRetos.map((m, i) => (
+                          <li key={i} className="flex items-start gap-1.5">
+                            <span className="text-amber-500 font-bold shrink-0">•</span>
+                            <span>{m}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                    <span className="italic">
+                      <strong>Clima en la etapa:</strong> {candidateSummary.climaDocente}
+                    </span>
+                  </div>
+                </div>
+              )}
 
               {/* GRID PRINCIPAL: VALORACIÓN GLOBAL Y RADAR */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -10,10 +10,12 @@ import {
   Users,
   Calendar,
   ShieldCheck,
-  FileText
+  FileText,
+  Sparkles
 } from 'lucide-react';
 import { RoleStats, ThemeStyle } from '../../types/survey';
 import { RadarChart } from '../common/RadarChart';
+import { getCandidateSummary } from '../../services/candidateSummaries';
 
 interface ExecutiveReportViewProps {
   stats: RoleStats;
@@ -46,8 +48,9 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
     window.print();
   };
 
+  const candidateSummary = getCandidateSummary(stats.roleKey);
   const totalVotes = Object.values(stats.scoreDistribution).reduce((a, b) => a + b, 0);
-  const displayedComments = showAllResponses ? stats.comments : stats.comments.slice(0, 10);
+  const displayedComments = showAllResponses ? stats.comments : stats.comments.slice(0, 6);
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4 md:px-8 print:p-0 print:bg-white text-slate-800">
@@ -432,6 +435,37 @@ export const ExecutiveReportView: React.FC<ExecutiveReportViewProps> = ({
                 </div>
               </div>
             </div>
+
+            {/* SÍNTESIS EJECUTIVA DE DESEMPEÑO Y CLIMA DEL CANDIDATO */}
+            {candidateSummary && (
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 mb-3 text-xs print:bg-white print:border-slate-300">
+                <div className="flex items-center gap-1.5 mb-1.5 text-slate-900 font-black text-[11px] uppercase tracking-wider">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Síntesis Ejecutiva de Desempeño y Clima Laboral</span>
+                </div>
+                <p className="text-[10px] text-slate-700 leading-relaxed mb-2 font-medium">
+                  {candidateSummary.diagnosticoGeneral}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px]">
+                  <div className="bg-emerald-50/70 border border-emerald-100 p-2 rounded-lg">
+                    <span className="font-extrabold text-emerald-900 block mb-0.5">Fortalezas Clave Reconocidas:</span>
+                    <ul className="list-disc list-inside space-y-0.5 text-emerald-800">
+                      {candidateSummary.fortalezasClave.slice(0, 2).map((f, fi) => (
+                        <li key={fi} className="line-clamp-2">{f}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="bg-amber-50/70 border border-amber-100 p-2 rounded-lg">
+                    <span className="font-extrabold text-amber-900 block mb-0.5">Vías Prioritarias de Mejora:</span>
+                    <ul className="list-disc list-inside space-y-0.5 text-amber-800">
+                      {candidateSummary.areasMejoraRetos.slice(0, 2).map((m, mi) => (
+                        <li key={mi} className="line-clamp-2">{m}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Grid de comentarios a 2 columnas para optimizar espacio */}
             {stats.comments.length === 0 ? (
