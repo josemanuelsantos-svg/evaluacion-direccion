@@ -296,7 +296,7 @@ export default function App() {
       data.subRoles.forEach(sr => {
         allRolesList.push({
           key: `${key}_${sr.id}`,
-          title: `${data.title} (${sr.title.split(' ')[0]})`
+          title: `${data.title} (${sr.title})`
         });
       });
     } else {

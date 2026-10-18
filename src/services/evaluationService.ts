@@ -25,14 +25,29 @@ export async function fetchAllEvaluationsFromFirestore(): Promise<EvaluationReco
     const snapshot = await getDocs(q);
     const firestoreDocs: EvaluationRecord[] = snapshot.docs.map(d => {
       const data = d.data();
+      const academicYear = data.academicYear || determineAcademicYear(data.timestamp);
+      const rawAnswers = data.answers || {};
+      const cleanAnswers: Record<string, number | 'NA'> = {};
+
+      Object.entries(rawAnswers).forEach(([k, v]) => {
+        // En el curso histórico 2025/2026, el valor 0 guardado en Firestore correspondía al botón 'N/A' (No aplica)
+        if (academicYear === '2025_2026' && v === 0) {
+          cleanAnswers[k] = 'NA';
+        } else if (v === 'NA' || (v as unknown) === 'N/A' || (v as unknown) === 'no_aplica') {
+          cleanAnswers[k] = 'NA';
+        } else {
+          cleanAnswers[k] = v as (number | 'NA');
+        }
+      });
+
       return {
         id: d.id,
         roleEvaluated: data.roleEvaluated,
         subRoleEvaluated: data.subRoleEvaluated || null,
-        answers: data.answers || {},
+        answers: cleanAnswers,
         comments: data.comments || '',
         timestamp: data.timestamp,
-        academicYear: data.academicYear || determineAcademicYear(data.timestamp)
+        academicYear
       };
     });
 
